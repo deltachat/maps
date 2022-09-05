@@ -1,0 +1,3 @@
+name = "Maps"
+source_code_url = "https://github.com/r10s/maps"
+request_internet_access = true
