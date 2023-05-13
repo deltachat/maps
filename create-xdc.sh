@@ -25,3 +25,5 @@ size=$(wc -c < "$PACKAGE_NAME.xdc")
 if [ $size -ge $MAXSIZE ]; then
     echo "WARNING: package size exceeded the limit ($size > $MAXSIZE)"
 fi
+
+cp $PACKAGE_NAME.xdc ../../deltachat-ios/deltachat-ios/Assets
