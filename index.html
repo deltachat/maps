@@ -16,6 +16,19 @@
             bottom: 0;
             width: 100%;
         }
+
+        .transparent-tooltip {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: black;
+            text-shadow: 2px 2px 1px #fff, -2px -2px 1px #fff, 2px -2px 1px #fff, -2px 2px 1px #fff;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+        }
+        .transparent-tooltip::before {
+            border: none;
+        }
     </style>
 </head>
 

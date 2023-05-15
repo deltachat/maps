@@ -8,13 +8,13 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 window.webxdc.setUpdateListener(function(update) {
     const payload = update.payload;
     if (payload.action === 'independent-pos') {
-        L.marker(payload.latlng).addTo(map);
+        var marker = L.marker(payload).addTo(map);
+        marker.bindTooltip(htmlentities(payload.text), {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
     }
 });
 
 
-
-// Share a dedicated location
+// share a dedicated location
 
 var popup;
 var popupLatlng;
@@ -25,11 +25,12 @@ function onSend() {
     webxdc.sendUpdate({
             payload: {
                 action: 'independent-pos',
-                latlng: popupLatlng,
+                lat: popupLatlng.lat,
+                lng: popupLatlng.lng,
                 text: elem.value,
             },
         },
-        'POI added to map at ' + popupLatlng['lat'] + '/' + popupLatlng['lng'] + ' with text: ' + elem.value
+        'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + elem.value
     );
 }
 
@@ -43,3 +44,10 @@ function onMapLongClick(e) {
 }
 
 map.on('click', onMapLongClick);
+
+
+// tools
+
+function htmlentities(rawStr) {
+    return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
+}
