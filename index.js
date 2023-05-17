@@ -1,5 +1,8 @@
 
-var map = L.map('map', {doubleClickZoom: false})
+var map = L.map('map', {
+        doubleClickZoom: true,
+        tapHold: true,
+    })
     .setView([47.997791, 7.842609], 13);
 map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -44,7 +47,7 @@ function onMapLongClick(e) {
     console.log('map clicked at ' + popupLatlng);
 }
 
-map.on('dblclick', onMapLongClick);
+map.on('contextmenu', onMapLongClick);
 
 
 // tools
