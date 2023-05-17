@@ -1,9 +1,5 @@
 
-var map = L.map('map', {
-        doubleClickZoom: true,
-        zoomControl: false, /* added manually below */
-        tapHold: true,
-    })
+var map = L.map('map', {doubleClickZoom: true, zoomControl: false, /* added manually below */ tapHold: true, })
     .setView([47.997791, 7.842609], 13);
 map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -22,7 +18,7 @@ window.webxdc.setUpdateListener(function(update) {
 
         var marker = L.marker(payload).addTo(map);
         marker.bindTooltip(htmlentities(label), {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
-        marker.bindPopup(htmlentities(payload.text));
+        marker.bindPopup(htmlentities(payload.text), {closeButton: false});
     }
 });
 
@@ -35,23 +31,26 @@ var popupLatlng;
 function onSend() {
     const elem = document.getElementById('textToSend');
     popup.close();
-    webxdc.sendUpdate({
-            payload: {
-                action: 'independent-pos',
-                lat: popupLatlng.lat,
-                lng: popupLatlng.lng,
-                text: elem.value,
+    const value =  elem.value.trim();
+    if (value != "") {
+        webxdc.sendUpdate({
+                payload: {
+                    action: 'independent-pos',
+                    lat: popupLatlng.lat,
+                    lng: popupLatlng.lng,
+                    text: elem.value,
+                },
             },
-        },
-        'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + elem.value
-    );
+            'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value
+        );
+    }
 }
 
 function onMapLongClick(e) {
     popupLatlng = e.latlng;
-    popup = L.popup()
+    popup = L.popup({closeButton: false})
         .setLatLng(popupLatlng)
-        .setContent('<input type=text id=textToSend placeholder="POI description"> <button onclick="onSend()">Send</button>')
+        .setContent('<div class="formx"><input type=text size=12 id=textToSend placeholder="Enter text"> <button onclick="onSend()">Send</button></div>')
         .openOn(map);
     console.log('map clicked at ' + popupLatlng);
 }
