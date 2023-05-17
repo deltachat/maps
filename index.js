@@ -1,5 +1,6 @@
 
-var map = L.map('map').setView([47.997791, 7.842609], 13);
+var map = L.map('map', {doubleClickZoom: false})
+    .setView([47.997791, 7.842609], 13);
 map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19
@@ -38,12 +39,12 @@ function onMapLongClick(e) {
     popupLatlng = e.latlng;
     popup = L.popup()
         .setLatLng(popupLatlng)
-        .setContent('<input type=text id=textToSend placeholder="Send point of interest"> <button onclick="onSend()">Send</button>')
+        .setContent('<input type=text id=textToSend placeholder="POI description"> <button onclick="onSend()">Send</button>')
         .openOn(map);
     console.log('map clicked at ' + popupLatlng);
 }
 
-map.on('click', onMapLongClick);
+map.on('dblclick', onMapLongClick);
 
 
 // tools
