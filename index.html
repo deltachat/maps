@@ -7,13 +7,22 @@
     <link rel="stylesheet" href="leaflet.css"/>
     <script src="leaflet.js"></script>
     <style type="text/css">
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            width: 100vw;
+        }
+
         #map {
             position: absolute;
             left: 0;
             right: 0;
             top: 0;
             bottom: 0;
-            width: 100%;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
