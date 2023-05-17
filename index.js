@@ -50,7 +50,7 @@ function onMapLongClick(e) {
     popupLatlng = e.latlng;
     popup = L.popup({closeButton: false})
         .setLatLng(popupLatlng)
-        .setContent('<div class="formx"><input type=text size=12 id=textToSend placeholder="Enter text"> <button onclick="onSend()">Send</button></div>')
+        .setContent('<small>&nbsp;Send POI</small><div class="formx"><input type=text size=12 id=textToSend placeholder="Emoji or label"> <button onclick="onSend()">Send</button></div>')
         .openOn(map);
     console.log('map clicked at ' + popupLatlng);
 }
