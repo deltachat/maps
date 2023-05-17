@@ -15,8 +15,14 @@ L.control.zoom({position: 'bottomright'}).addTo(map);
 window.webxdc.setUpdateListener(function(update) {
     const payload = update.payload;
     if (payload.action === 'independent-pos') {
+        var label = payload.text;
+        if (label.length > 10) {
+            label = label.substring(0, 9).trim() + ".."
+        }
+
         var marker = L.marker(payload).addTo(map);
-        marker.bindTooltip(htmlentities(payload.text), {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+        marker.bindTooltip(htmlentities(label), {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+        marker.bindPopup(htmlentities(payload.text));
     }
 });
 
