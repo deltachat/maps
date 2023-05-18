@@ -6,7 +6,7 @@ var map = L.map('map', {doubleClickZoom: true, zoomControl: false, /* added manu
 map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
 L.control.scale({position: 'bottomleft'}).addTo(map);
-L.control.zoom({position: 'bottomright'}).addTo(map);
+L.control.zoom({position: 'topright'}).addTo(map);
 
 window.webxdc.setUpdateListener(function(update) {
     const payload = update.payload;
