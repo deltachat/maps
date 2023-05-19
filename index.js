@@ -10,7 +10,7 @@ L.control.zoom({position: 'topright'}).addTo(map);
 
 window.webxdc.setUpdateListener(function(update) {
     const payload = update.payload;
-    if (payload.action === 'independent-pos') {
+    if (payload.action === 'pos') {
         var label = payload.text;
         if (label.length > 10) {
             label = label.substring(0, 9).trim() + ".."
@@ -35,7 +35,7 @@ function onSend() {
     if (value != "") {
         webxdc.sendUpdate({
                 payload: {
-                    action: 'independent-pos',
+                    action: 'pos',
                     lat: popupLatlng.lat,
                     lng: popupLatlng.lng,
                     text: elem.value,
