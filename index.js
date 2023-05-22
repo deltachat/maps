@@ -7,27 +7,53 @@ map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
 L.control.scale({position: 'bottomleft'}).addTo(map);
 L.control.zoom({position: 'topright'}).addTo(map);
+var tracks = {};
+var contacts = {};
 
-window.webxdc.setUpdateListener(function(update) {
+
+window.webxdc.setUpdateListener((update) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
-        var label = payload.text;
-        if (label.length > 10) {
-            label = label.substring(0, 9).trim() + ".."
+        if (payload.independent) {
+            var label = payload.text == '' ? '??' : payload.text;
+            if (label.length > 10) {
+                label = label.substring(0, 9).trim() + ".."
+            }
+            labelHtml = htmlentities(label);
+
+            var marker = L.marker(payload).addTo(map);
+            marker.bindTooltip(labelHtml, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+            marker.bindPopup(popupHtml(payload), {closeButton: false});
+        } else {
+            if (!Array.isArray(tracks[payload.contactId])) {
+                tracks[payload.contactId] = [];
+                contacts[payload.contactId] = payload;
+            }
+            tracks[payload.contactId].push([payload.lat,payload.lng]);
         }
-        labelHtml = htmlentities(label);
-
-        popupHtml = '<div>' + htmlentities(payload.text) + '</div>'
-            + '<div><small>'
-            + payload.lat.toFixed(4) + '°/' + payload.lng.toFixed(4) + '°<br>'
-            + htmlentities(new Date(payload.timestamp*1000).toLocaleString())
-            + '</small></div>';
-
-        var marker = L.marker(payload).addTo(map);
-        marker.bindTooltip(labelHtml, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
-        marker.bindPopup(popupHtml, {closeButton: false});
     }
+}).then(() => {
+    updateTracks();
 });
+
+function popupHtml(payload) {
+    return '<div>' + htmlentities(payload.text) + '</div>'
+        + '<div><small>'
+        + payload.lat.toFixed(4) + '°/' + payload.lng.toFixed(4) + '°<br>'
+        + htmlentities(new Date(payload.timestamp*1000).toLocaleString())
+        + '</small></div>';
+}
+
+// contact's tracks
+
+function updateTracks() {
+    for (contactId in tracks) {
+        L.polyline(tracks[contactId], {color: 'red', weight: 5}).addTo(map);
+        var marker = L.marker({lat: tracks[contactId][0][0], lng: tracks[contactId][0][1]}).addTo(map);
+        marker.bindTooltip('Contact'+contactId, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+        marker.bindPopup(popupHtml(contacts[contactId]), {closeButton: false});
+    }
+}
 
 
 // share a dedicated location
