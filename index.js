@@ -2,7 +2,7 @@
 
 
 var map = L.map('map', {doubleClickZoom: true, zoomControl: false, /* added manually below */ tapHold: true, })
-    .setView([47.997791, 7.842609], 13);
+    .setView([53.785054, 9.408707], 15);
 map.attributionControl.setPrefix('');
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
 L.control.scale({position: 'bottomleft'}).addTo(map);
