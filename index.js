@@ -15,10 +15,17 @@ window.webxdc.setUpdateListener(function(update) {
         if (label.length > 10) {
             label = label.substring(0, 9).trim() + ".."
         }
+        labelHtml = htmlentities(label);
+
+        popupHtml = '<div>' + htmlentities(payload.text) + '</div>'
+            + '<div><small>'
+            + payload.lat.toFixed(4) + '°/' + payload.lng.toFixed(4) + '°<br>'
+            + htmlentities(new Date(payload.timestamp*1000).toLocaleString())
+            + '</small></div>';
 
         var marker = L.marker(payload).addTo(map);
-        marker.bindTooltip(htmlentities(label), {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
-        marker.bindPopup(htmlentities(payload.text), {closeButton: false});
+        marker.bindTooltip(labelHtml, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+        marker.bindPopup(popupHtml, {closeButton: false});
     }
 });
 
