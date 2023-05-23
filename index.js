@@ -48,9 +48,9 @@ function popupHtml(payload) {
 
 function updateTracks() {
     for (contactId in tracks) {
-        L.polyline(tracks[contactId], {color: 'red', weight: 5}).addTo(map);
+        L.polyline(tracks[contactId], {color: contacts[contactId].color, weight: 5}).addTo(map);
         var marker = L.marker({lat: tracks[contactId][0][0], lng: tracks[contactId][0][1]}).addTo(map);
-        marker.bindTooltip('Contact'+contactId, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
+        marker.bindTooltip(contacts[contactId].text, {permanent: true, direction: 'bottom', offset: [-15, 15], className: 'transparent-tooltip'}).openTooltip();
         marker.bindPopup(popupHtml(contacts[contactId]), {closeButton: false});
     }
 }
