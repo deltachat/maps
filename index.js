@@ -1,7 +1,9 @@
 
+// set up map
+
 var map = L.map('map', {
         doubleClickZoom: true,
-        zoomControl: false, /* added manually below */
+        zoomControl: false, // added manually below
         tapHold: true
     });
 if (localStorage.getItem('map.lat') === null) {
@@ -30,6 +32,8 @@ var tracks = {};   // hash contactId to positions, last position == newest posit
 var contacts = {}; // hash contactId to info
 
 
+
+// set up webxdc
 
 window.webxdc.setUpdateListener((update) => {
     const payload = update.payload;
@@ -124,7 +128,8 @@ function onMapLongClick(e) {
 map.on('contextmenu', onMapLongClick);
 
 
-// save position and zoom
+
+// handle position and zoom
 
 function onMapMoveOrZoom(e) {
     localStorage.setItem('map.lat', map.getCenter().lat);
@@ -134,6 +139,7 @@ function onMapMoveOrZoom(e) {
 
 map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
+
 
 
 // tools
