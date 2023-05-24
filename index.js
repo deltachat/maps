@@ -63,13 +63,13 @@ function updateTracks() {
         L.polyline(tracks[contactId], {color: contacts[contactId].color, weight: 4}).addTo(map);
 
         var lastMarker = tracks[contactId].length - 1;
-        var marker = L.marker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
-                icon: figureIcon
+        var marker = L.circleMarker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
+                color: contacts[contactId].color, weight: 3, fill: false
             }).addTo(map);
         marker.bindTooltip('<span style="color:'+contacts[contactId].color+'">' + htmlentities(contacts[contactId].text) + '</span>', {
                 permanent: true,
                 direction: 'bottom',
-                offset: [0, -15],
+                offset: [0, -24],
                 className: 'transparent-tooltip'
             }).openTooltip();
         marker.bindPopup(popupHtml(contacts[contactId]), { closeButton: false });
