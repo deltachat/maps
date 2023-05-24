@@ -15,9 +15,10 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var pinIcon = L.icon({
     iconUrl: 'images/pin-icon.png',
-    iconSize:     [12, 34], // size of the icon
-    iconAnchor:   [6, 34], // point of the icon which will correspond to marker's location
-    popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+    iconRetinaUrl: 'images/pin-icon-2x.png',
+    iconSize:     [12, 29], // size of the icon
+    iconAnchor:   [6, 29], // point of the icon which will correspond to marker's location
+    popupAnchor:  [0, -29] // point from which the popup should open relative to the iconAnchor
 });
 
 var tracks = {};   // hash contactId to positions, last position == newest position
