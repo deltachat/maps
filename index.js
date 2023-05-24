@@ -4,7 +4,7 @@ var map = L.map('map', {
         zoomControl: false, /* added manually below */
         tapHold: true
     });
-if (localStorage.getItem('map.latxxx') === null) {
+if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
     map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
