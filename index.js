@@ -13,6 +13,13 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: "&copy; OpenStreetMap"
     }).addTo(map);
 
+var pinIcon = L.icon({
+    iconUrl: 'images/pin-icon.png',
+    iconSize:     [12, 34], // size of the icon
+    iconAnchor:   [6, 34], // point of the icon which will correspond to marker's location
+    popupAnchor:  [0, -34] // point from which the popup should open relative to the iconAnchor
+});
+
 var tracks = {};   // hash contactId to positions, last position == newest position
 var contacts = {}; // hash contactId to info
 
@@ -27,11 +34,13 @@ window.webxdc.setUpdateListener((update) => {
                 label = label.substring(0, 9).trim() + ".."
             }
 
-            var marker = L.marker([payload.lat, payload.lng]).addTo(map);
+            var marker = L.marker([payload.lat, payload.lng], {
+                    icon: pinIcon
+                }).addTo(map);
             marker.bindTooltip(htmlentities(label), {
                     permanent: true,
                     direction: 'bottom',
-                    offset: [-15, 15],
+                    offset: [0, -15],
                     className: 'transparent-tooltip'
                 }).openTooltip();
             marker.bindPopup(popupHtml(payload), { closeButton: false });
