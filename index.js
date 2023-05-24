@@ -13,13 +13,6 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: "&copy; OpenStreetMap"
     }).addTo(map);
 
-var figureIcon = L.icon({
-    iconUrl: 'images/figure-icon.png',
-    iconSize:     [18, 44], // size of the icon
-    iconAnchor:   [9, 44], // point of the icon which will correspond to marker's location
-    popupAnchor:  [0, -44] // point from which the popup should open relative to the iconAnchor
-});
-
 var tracks = {};   // hash contactId to positions, last position == newest position
 var contacts = {}; // hash contactId to info
 
