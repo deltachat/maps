@@ -66,14 +66,19 @@ function updateTracks() {
 
         var lastMarker = tracks[contactId].length - 1;
         var marker = L.circleMarker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
-                color: contacts[contactId].color, weight: 3, fill: false
+                color: contacts[contactId].color,
+                weight: 3,
+                fill: true, // fill=true is needed for a reasonable clicking area
+                fillOpacity: 0.0
             }).addTo(map);
-        marker.bindTooltip('<span style="color:'+contacts[contactId].color+'">' + htmlentities(contacts[contactId].text) + '</span>', {
+        var tooltip = L.tooltip([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
+                content: '<span style="color:'+contacts[contactId].color+'">' + htmlentities(contacts[contactId].text) + '</span>',
                 permanent: true,
                 direction: 'bottom',
                 offset: [0, -24],
                 className: 'transparent-tooltip'
-            }).openTooltip();
+          });
+        marker.bindTooltip(tooltip).openTooltip();
         marker.bindPopup(popupHtml(contacts[contactId]), { closeButton: false });
     }
 }
