@@ -3,7 +3,12 @@ var map = L.map('map', {
         doubleClickZoom: true,
         zoomControl: false, /* added manually below */
         tapHold: true
-    }).setView([53.785054, 9.408707], 15);
+    });
+if (localStorage.getItem('map.latxxx') === null) {
+    map.setView([30, -30], 3);
+} else {
+    map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
+}
 map.attributionControl.setPrefix('');
 L.control.scale({position: 'bottomleft'}).addTo(map);
 L.control.zoom({position: 'topright'}).addTo(map);
@@ -118,6 +123,17 @@ function onMapLongClick(e) {
 
 map.on('contextmenu', onMapLongClick);
 
+
+// save position and zoom
+
+function onMapMoveOrZoom(e) {
+    localStorage.setItem('map.lat', map.getCenter().lat);
+    localStorage.setItem('map.lng', map.getCenter().lng);
+    localStorage.setItem('map.zoom', map.getZoom());
+}
+
+map.on('moveend', onMapMoveOrZoom);
+map.on('zoomend', onMapMoveOrZoom);
 
 
 // tools
