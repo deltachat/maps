@@ -13,6 +13,13 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: "&copy; OpenStreetMap"
     }).addTo(map);
 
+var figureIcon = L.icon({
+    iconUrl: 'images/figure-icon.png',
+    iconSize:     [18, 44], // size of the icon
+    iconAnchor:   [9, 44], // point of the icon which will correspond to marker's location
+    popupAnchor:  [0, -44] // point from which the popup should open relative to the iconAnchor
+});
+
 var tracks = {};   // hash contactId to positions, last position == newest position
 var contacts = {}; // hash contactId to info
 
@@ -56,14 +63,13 @@ function updateTracks() {
         L.polyline(tracks[contactId], {color: contacts[contactId].color, weight: 4}).addTo(map);
 
         var lastMarker = tracks[contactId].length - 1;
-        var marker = L.marker({
-                lat: tracks[contactId][lastMarker][0],
-                lng: tracks[contactId][lastMarker][1]
+        var marker = L.marker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
+                icon: figureIcon
             }).addTo(map);
         marker.bindTooltip('<span style="color:'+contacts[contactId].color+'">' + htmlentities(contacts[contactId].text) + '</span>', {
                 permanent: true,
                 direction: 'bottom',
-                offset: [-15, 15],
+                offset: [0, -15],
                 className: 'transparent-tooltip'
             }).openTooltip();
         marker.bindPopup(popupHtml(contacts[contactId]), { closeButton: false });
