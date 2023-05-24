@@ -27,7 +27,7 @@ window.webxdc.setUpdateListener((update) => {
                 label = label.substring(0, 9).trim() + ".."
             }
 
-            var marker = L.marker(payload).addTo(map);
+            var marker = L.marker([payload.lat, payload.lng]).addTo(map);
             marker.bindTooltip(htmlentities(label), {
                     permanent: true,
                     direction: 'bottom',
@@ -40,7 +40,7 @@ window.webxdc.setUpdateListener((update) => {
                 tracks[payload.contactId] = [];
                 contacts[payload.contactId] = payload;
             }
-            tracks[payload.contactId].push([payload.lat,payload.lng]);
+            tracks[payload.contactId].push([payload.lat, payload.lng]);
         }
     }
 }).then(() => {
