@@ -78,6 +78,7 @@ function updateTracks() {
         var marker = L.circleMarker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
                 color: contacts[contactId].color,
                 weight: 3,
+                radius: 11,
                 fill: true, // fill=true is needed for a reasonable clicking area
                 fillOpacity: 0.0
             }).addTo(map);
