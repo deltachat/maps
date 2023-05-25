@@ -114,6 +114,8 @@ function onSend() {
                     text: elem.value,
                 },
             }, 'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value);
+    } else {
+        elem.placeholder = "Enter label" // just some cheap visual feedback
     }
 }
 
@@ -121,7 +123,7 @@ function onMapLongClick(e) {
     popupLatlng = e.latlng;
     popup = L.popup({closeButton: false})
         .setLatLng(popupLatlng)
-        .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Enter label"><br><button onclick="onSend()">Send</button></div>')
+        .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>')
         .openOn(map);
     console.log('map clicked at ' + popupLatlng);
 }
