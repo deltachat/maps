@@ -103,9 +103,9 @@ var popupLatlng;
 
 function onSend() {
     const elem = document.getElementById('textToSend');
-    popup.close();
     const value =  elem.value.trim();
     if (value != "") {
+        popup.close();
         webxdc.sendUpdate({
                 payload: {
                     action: 'pos',
@@ -121,7 +121,7 @@ function onMapLongClick(e) {
     popupLatlng = e.latlng;
     popup = L.popup({closeButton: false})
         .setLatLng(popupLatlng)
-        .setContent('<small>&nbsp;Send POI</small><div class="formx"><input type=text size=12 id=textToSend placeholder="Emoji or label"> <button onclick="onSend()">Send</button></div>')
+        .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Enter label"><br><button onclick="onSend()">Send</button></div>')
         .openOn(map);
     console.log('map clicked at ' + popupLatlng);
 }
