@@ -29,6 +29,7 @@ var pinIcon = L.icon({
 });
 
 var tracks = {};
+var initDone = false;
 
 
 
@@ -59,10 +60,14 @@ window.webxdc.setUpdateListener((update) => {
                     lines: [[]],
                     payload: payload,
                     lastTimestamp: payload.timestamp,
+                    marker: null,
+                    polyline: null
                 };
+            } else {
+                tracks[payload.contactId].payload = payload;
             }
-            var lastLine = tracks[payload.contactId].lines.length - 1;
 
+            var lastLine = tracks[payload.contactId].lines.length - 1;
             if ((payload.timestamp - tracks[payload.contactId].lastTimestamp) > 5 * 60) {
                 // larger time difference: start new line and connect with previous point on track
                 if (tracks[payload.contactId].lines[lastLine].length == 1) {
@@ -74,39 +79,56 @@ window.webxdc.setUpdateListener((update) => {
 
             tracks[payload.contactId].lines[lastLine].push([payload.lat, payload.lng]);
             tracks[payload.contactId].lastTimestamp = payload.timestamp;
+            if (initDone) {
+                updateTrack(payload.contactId);
+            }
         }
     }
 }).then(() => {
     updateTracks();
+    initDone = true;
 });
 
 
 
 // contact's tracks
 
-function updateTracks() {
-    for (contactId in tracks) {
-        const track = tracks[contactId];
-        L.polyline(track.lines, {color: track.payload.color, weight: 4}).addTo(map);
+function updateTrack(contactId) {
+    var track = tracks[contactId];
 
-        var lastLine = track.lines.length - 1;
-        var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
-        var marker = L.circleMarker(lastLatLng, {
+    if (track.polyline) {
+        map.removeLayer(track.polyline);
+    }
+    track.polyline = L.polyline(track.lines, {color: track.payload.color, weight: 4}).addTo(map);
+
+    var lastLine = track.lines.length - 1;
+    var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
+    if (track.marker == null) {
+        track.marker = L.circleMarker(lastLatLng, {
                 color: track.payload.color,
                 weight: 3,
                 radius: 11,
                 fill: true, // fill=true is needed for a reasonable clicking area
                 fillOpacity: 0.0
             }).addTo(map);
-        var tooltip = L.tooltip(lastLatLng, {
+        var tooltip = L.tooltip({
                 content: '<span style="color:'+track.payload.color+'">' + htmlentities(track.payload.text) + '</span>',
                 permanent: true,
                 direction: 'bottom',
                 offset: [0, -24],
                 className: 'transparent-tooltip'
           });
-        marker.bindTooltip(tooltip).openTooltip();
-        marker.bindPopup(popupHtml(track.payload), { closeButton: false });
+        track.marker.bindTooltip(tooltip).openTooltip();
+    } else {
+        track.marker.setLatLng(lastLatLng);
+    }
+    track.marker.unbindPopup();
+    track.marker.bindPopup(popupHtml(track.payload), { closeButton: false });
+}
+
+function updateTracks() {
+    for (contactId in tracks) {
+        updateTrack(contactId);
     }
 }
 
