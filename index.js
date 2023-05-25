@@ -39,7 +39,7 @@ window.webxdc.setUpdateListener((update) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
         if (payload.independent) {
-            var label = payload.text == '' ? '??' : payload.text;
+            var label = payload.text;
             if (label.length > 10) {
                 label = label.substring(0, 9).trim() + ".."
             }
