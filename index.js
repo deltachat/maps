@@ -57,11 +57,23 @@ window.webxdc.setUpdateListener((update) => {
             if (!tracks[payload.contactId]) {
                 tracks[payload.contactId] = {
                     lines: [[]],
-                    payload: payload
+                    payload: payload,
+                    lastTimestamp: payload.timestamp,
                 };
             }
             var lastLine = tracks[payload.contactId].lines.length - 1;
+
+            if ((payload.timestamp - tracks[payload.contactId].lastTimestamp) > 5 * 60) {
+                // larger time difference: start new line and connect with previous point on track
+                if (tracks[payload.contactId].lines[lastLine].length == 1) {
+                    tracks[payload.contactId].lines[lastLine].push(tracks[payload.contactId].lines[lastLine][0]);
+                }
+                tracks[payload.contactId].lines.push([]);
+                lastLine++;
+            }
+
             tracks[payload.contactId].lines[lastLine].push([payload.lat, payload.lng]);
+            tracks[payload.contactId].lastTimestamp = payload.timestamp;
         }
     }
 }).then(() => {
@@ -129,7 +141,6 @@ function onMapLongClick(e) {
         .setLatLng(popupLatlng)
         .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>')
         .openOn(map);
-    console.log('map clicked at ' + popupLatlng);
 }
 
 map.on('contextmenu', onMapLongClick);
