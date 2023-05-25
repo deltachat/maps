@@ -121,7 +121,7 @@ function onSend() {
 
 function onMapLongClick(e) {
     popupLatlng = e.latlng;
-    popup = L.popup({closeButton: false})
+    popup = L.popup({closeButton: false, keepInView: true})
         .setLatLng(popupLatlng)
         .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>')
         .openOn(map);
