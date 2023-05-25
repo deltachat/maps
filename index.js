@@ -28,8 +28,7 @@ var pinIcon = L.icon({
     popupAnchor:  [0, -29] // point from which the popup should open relative to the iconAnchor
 });
 
-var tracks = {};   // hash contactId to positions, last position == newest position
-var contacts = {}; // hash contactId to info
+var tracks = {};
 
 
 
@@ -55,11 +54,14 @@ window.webxdc.setUpdateListener((update) => {
                 }).openTooltip();
             marker.bindPopup(popupHtml(payload), { closeButton: false });
         } else {
-            if (!Array.isArray(tracks[payload.contactId])) {
-                tracks[payload.contactId] = [];
-                contacts[payload.contactId] = payload;
+            if (!tracks[payload.contactId]) {
+                tracks[payload.contactId] = {
+                    lines: [[]],
+                    payload: payload
+                };
             }
-            tracks[payload.contactId].push([payload.lat, payload.lng]);
+            var lastLine = tracks[payload.contactId].lines.length - 1;
+            tracks[payload.contactId].lines[lastLine].push([payload.lat, payload.lng]);
         }
     }
 }).then(() => {
@@ -72,25 +74,27 @@ window.webxdc.setUpdateListener((update) => {
 
 function updateTracks() {
     for (contactId in tracks) {
-        L.polyline(tracks[contactId], {color: contacts[contactId].color, weight: 4}).addTo(map);
+        const track = tracks[contactId];
+        L.polyline(track.lines, {color: track.payload.color, weight: 4}).addTo(map);
 
-        var lastMarker = tracks[contactId].length - 1;
-        var marker = L.circleMarker([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
-                color: contacts[contactId].color,
+        var lastLine = track.lines.length - 1;
+        var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
+        var marker = L.circleMarker(lastLatLng, {
+                color: track.payload.color,
                 weight: 3,
                 radius: 11,
                 fill: true, // fill=true is needed for a reasonable clicking area
                 fillOpacity: 0.0
             }).addTo(map);
-        var tooltip = L.tooltip([tracks[contactId][lastMarker][0], tracks[contactId][lastMarker][1]], {
-                content: '<span style="color:'+contacts[contactId].color+'">' + htmlentities(contacts[contactId].text) + '</span>',
+        var tooltip = L.tooltip(lastLatLng, {
+                content: '<span style="color:'+track.payload.color+'">' + htmlentities(track.payload.text) + '</span>',
                 permanent: true,
                 direction: 'bottom',
                 offset: [0, -24],
                 className: 'transparent-tooltip'
           });
         marker.bindTooltip(tooltip).openTooltip();
-        marker.bindPopup(popupHtml(contacts[contactId]), { closeButton: false });
+        marker.bindPopup(popupHtml(track.payload), { closeButton: false });
     }
 }
 
