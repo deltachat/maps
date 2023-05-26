@@ -39,15 +39,10 @@ window.webxdc.setUpdateListener((update) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
         if (payload.independent) {
-            var label = payload.text;
-            if (label.length > 10) {
-                label = label.substring(0, 9).trim() + ".."
-            }
-
             var marker = L.marker([payload.lat, payload.lng], {
                     icon: pinIcon
                 }).addTo(map);
-            marker.bindTooltip(htmlentities(label), {
+            marker.bindTooltip(htmlentities(shortLabel(payload)), {
                     permanent: true,
                     direction: 'bottom',
                     offset: [0, -15],
@@ -112,7 +107,7 @@ function updateTrack(contactId) {
                 fillOpacity: 0.0
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span style="color:'+track.payload.color+'">' + htmlentities(track.payload.text) + '</span>',
+                content: '<span style="color:'+track.payload.color+'">' + htmlentities(shortLabel(track.payload)) + '</span>',
                 permanent: true,
                 direction: 'bottom',
                 offset: [0, -24],
@@ -186,6 +181,14 @@ map.on('zoomend', onMapMoveOrZoom);
 
 function htmlentities(rawStr) {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
+}
+
+function shortLabel(payload) {
+    var label = payload.text;
+    if (label.length > 9) {
+        label = label.substring(0, 8).trim() + "..";
+    }
+    return label;
 }
 
 function popupHtml(payload) {
