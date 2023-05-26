@@ -42,14 +42,20 @@ window.webxdc.setUpdateListener((update) => {
             var marker = L.marker([payload.lat, payload.lng], {
                     icon: pinIcon
                 }).addTo(map);
-            marker.bindTooltip(shortLabelHtml(payload), {
-                    permanent: true,
-                    interactive: true,
-                    direction: 'bottom',
-                    offset: [0, -17],
-                    className: 'transparent-tooltip'
-                }).openTooltip();
-            marker.bindPopup(popupHtml(payload), { closeButton: false });
+            if (payload.text) {
+                marker.bindTooltip(shortLabelHtml(payload), {
+                        permanent: true,
+                        interactive: true,
+                        direction: 'bottom',
+                        offset: [0, -17],
+                        className: 'transparent-tooltip'
+                    }).openTooltip();
+            }
+            marker.on('click', function () {
+                if (!marker.getPopup()) {
+                    marker.bindPopup(popupHtml(payload), { closeButton: false }).openPopup();
+                }
+            });
         } else {
             if (!tracks[payload.contactId]) {
                 tracks[payload.contactId] = {
