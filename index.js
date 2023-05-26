@@ -42,7 +42,7 @@ window.webxdc.setUpdateListener((update) => {
             var marker = L.marker([payload.lat, payload.lng], {
                     icon: pinIcon
                 }).addTo(map);
-            marker.bindTooltip(htmlentities(shortLabel(payload)), {
+            marker.bindTooltip(shortLabelHtml(payload), {
                     permanent: true,
                     direction: 'bottom',
                     offset: [0, -17],
@@ -103,7 +103,7 @@ function updateTrack(contactId) {
                 icon: pinIcon
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + htmlentities(shortLabel(track.payload)) + '</span>',
+                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + shortLabelHtml(track.payload) + '</span>',
                 permanent: true,
                 direction: 'bottom',
                 offset: [0, -13],
@@ -179,10 +179,13 @@ function htmlentities(rawStr) {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
 }
 
-function shortLabel(payload) {
+function shortLabelHtml(payload) {
     var label = payload.text;
     if (label.length > 9) {
-        label = label.substring(0, 8).trim() + "..";
+        label = htmlentities(label.substring(0, 8).trim()) + "..";
+    } else if (label.length <= 4) {
+        const padding = '&nbsp;'.repeat((7-label.length)/2);
+        label = padding + htmlentities(label) + padding;
     }
     return label;
 }
