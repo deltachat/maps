@@ -45,7 +45,7 @@ window.webxdc.setUpdateListener((update) => {
             marker.bindTooltip(htmlentities(shortLabel(payload)), {
                     permanent: true,
                     direction: 'bottom',
-                    offset: [0, -15],
+                    offset: [0, -17],
                     className: 'transparent-tooltip'
                 }).openTooltip();
             marker.bindPopup(popupHtml(payload), { closeButton: false });
@@ -99,20 +99,16 @@ function updateTrack(contactId) {
     var lastLine = track.lines.length - 1;
     var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
     if (track.marker == null) {
-        track.marker = L.circleMarker(lastLatLng, {
-                color: track.payload.color,
-                weight: 3,
-                radius: 11,
-                fill: true, // fill=true is needed for a reasonable clicking area
-                fillOpacity: 0.0
+        track.marker = L.marker(lastLatLng, {
+                icon: pinIcon
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span style="color:'+track.payload.color+'">' + htmlentities(shortLabel(track.payload)) + '</span>',
+                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + htmlentities(shortLabel(track.payload)) + '</span>',
                 permanent: true,
                 direction: 'bottom',
-                offset: [0, -24],
+                offset: [0, -13],
                 className: 'transparent-tooltip'
-          });
+            });
         track.marker.bindTooltip(tooltip).openTooltip();
     } else {
         track.marker.setLatLng(lastLatLng);
