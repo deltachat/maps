@@ -111,7 +111,7 @@ function updateTrack(contactId) {
                 opacity: 0
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + shortLabelHtml(track.payload.name) + '</span>',
+                content: '<span class="ppl-name" style="background-color:'+track.payload.color+';">' + shortLabelHtml(track.payload.name) + '</span>',
                 permanent: true,
                 interactive: true,
                 direction: 'bottom',
