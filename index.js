@@ -147,6 +147,8 @@ function onSend() {
         webxdc.sendUpdate({
                 payload: {
                     action: 'pos',
+                    independent: true,
+                    timestamp: Math.floor(Date.now() / 1000),
                     lat: popupLatlng.lat,
                     lng: popupLatlng.lng,
                     text: elem.value,
