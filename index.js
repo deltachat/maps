@@ -123,7 +123,11 @@ function updateTrack(contactId) {
         track.marker.setLatLng(lastLatLng);
     }
     track.marker.unbindPopup();
-    track.marker.bindPopup(popupHtml(track.payload), { closeButton: false });
+    track.marker.on('click', function () {
+        if (!track.marker.getPopup()) {
+            track.marker.bindPopup(popupHtml(track.payload), { closeButton: false }).openPopup();
+        }
+    });
 }
 
 function updateTracks() {
