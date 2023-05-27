@@ -97,11 +97,22 @@ window.webxdc.setUpdateListener((update) => {
 
 function updateTrack(contactId) {
     var track = tracks[contactId];
+    const age = Math.floor(Date.now() / 1000) - track.payload.timestamp;
 
     if (track.polyline) {
         map.removeLayer(track.polyline);
     }
+
     track.polyline = L.polyline(track.lines, {color: track.payload.color, weight: 4}).addTo(map);
+
+    var content = '<span class="ppl-name" style="background-color:'+track.payload.color+';">' + shortLabelHtml(track.payload.name) + '</span>';
+    if (age > 60*60) {
+        content += '<br><span class="ppl-time">' + Math.floor(age/60/60) + 'h ago</span>';
+    } else if (age > 30*60) {
+        content += '<br><span class="ppl-time">½h ago</span>';
+    } else if (age > 15*60) {
+        content += '<br><span class="ppl-time">¼h ago</span>';
+    }
 
     var lastLine = track.lines.length - 1;
     var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
@@ -111,7 +122,7 @@ function updateTrack(contactId) {
                 opacity: 0
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span class="ppl-name" style="background-color:'+track.payload.color+';">' + shortLabelHtml(track.payload.name) + '</span>',
+                content: content,
                 permanent: true,
                 interactive: true,
                 direction: 'bottom',
