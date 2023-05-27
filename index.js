@@ -157,10 +157,11 @@ function onSend() {
                     lng: popupLatlng.lng,
                     label: elem.value,
                     name: webxdc.selfName,
+                    color: '#888'
                 },
             }, 'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value);
     } else {
-        elem.placeholder = "Enter label" // just some cheap visual feedback
+        elem.placeholder = elem.placeholder == 'Label' ? "Enter label" : "Label"; // just some cheap visual feedback
     }
 }
 
