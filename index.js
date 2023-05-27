@@ -48,7 +48,7 @@ window.webxdc.setUpdateListener((update) => {
                         interactive: true,
                         direction: 'bottom',
                         offset: [0, -17],
-                        className: 'transparent-tooltip'
+                        className: 'poi-tooltip'
                     }).openTooltip();
             }
             marker.on('click', function () {
@@ -116,7 +116,7 @@ function updateTrack(contactId) {
                 interactive: true,
                 direction: 'bottom',
                 offset: [0, -28],
-                className: 'transparent-tooltip'
+                className: 'ppl-tooltip'
             });
         track.marker.bindTooltip(tooltip).openTooltip();
     } else {

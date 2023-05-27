@@ -29,16 +29,25 @@
             user-select: none;
         }
 
-        .transparent-tooltip {
+        .poi-tooltip {
             font-weight: bold;
             font-size: 15px;
-            color: #ff3b30; /* #444 */
+            color: #ff3b30;
             text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff;
             background: transparent;
             box-shadow: none;
             border: none;
         }
-        .transparent-tooltip::before {
+        .ppl-tooltip {
+            font-weight: bold;
+            font-size: 15px;
+            color: #ff3b30;
+            text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+        }
+        .poi-tooltip::before, .ppl-tooltip::before {
             border: none;
         }
 
