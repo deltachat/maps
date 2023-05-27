@@ -42,8 +42,8 @@ window.webxdc.setUpdateListener((update) => {
             var marker = L.marker([payload.lat, payload.lng], {
                     icon: pinIcon
                 }).addTo(map);
-            if (payload.text) {
-                marker.bindTooltip(shortLabelHtml(payload), {
+            if (payload.label) {
+                marker.bindTooltip(shortLabelHtml(payload.label), {
                         permanent: true,
                         interactive: true,
                         direction: 'bottom',
@@ -111,7 +111,7 @@ function updateTrack(contactId) {
                 opacity: 0
             }).addTo(map);
         var tooltip = L.tooltip({
-                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + shortLabelHtml(track.payload) + '</span>',
+                content: '<span style="background-color:'+track.payload.color+'; color: white; text-shadow: none; padding: 0 5px; border: 1px solid white; border-radius: 10px;">' + shortLabelHtml(track.payload.name) + '</span>',
                 permanent: true,
                 interactive: true,
                 direction: 'bottom',
@@ -155,7 +155,8 @@ function onSend() {
                     timestamp: Math.floor(Date.now() / 1000),
                     lat: popupLatlng.lat,
                     lng: popupLatlng.lng,
-                    text: elem.value,
+                    label: elem.value,
+                    name: webxdc.selfName,
                 },
             }, 'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value);
     } else {
@@ -194,8 +195,7 @@ function htmlentities(rawStr) {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
 }
 
-function shortLabelHtml(payload) {
-    var label = payload.text;
+function shortLabelHtml(label) {
     if (label.length > 9) {
         label = htmlentities(label.substring(0, 8).trim()) + "..";
     } else if (label.length <= 4) {
@@ -206,7 +206,8 @@ function shortLabelHtml(payload) {
 }
 
 function popupHtml(payload) {
-    return '<div>' + htmlentities(payload.text) + '</div>'
+    return '<div><small><b style="color:'+payload.color+'">' + htmlentities(payload.name) + '</b></small></div>'
+        + '<div>' + htmlentities(payload.label) + '</div>'
         + '<div><small>'
         + payload.lat.toFixed(4) + '°/' + payload.lng.toFixed(4) + '°<br>'
         + htmlentities(new Date(payload.timestamp*1000).toLocaleString())
