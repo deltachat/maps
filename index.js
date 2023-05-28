@@ -97,15 +97,14 @@ window.webxdc.setUpdateListener((update) => {
 
 function updateTrack(contactId) {
     var track = tracks[contactId];
-    const age = Math.floor(Date.now() / 1000) - track.payload.timestamp;
 
     if (track.polyline) {
         map.removeLayer(track.polyline);
     }
-
     track.polyline = L.polyline(track.lines, {color: track.payload.color, weight: 4}).addTo(map);
 
     var content = '<span class="ppl-name" style="background-color:'+track.payload.color+';">' + shortLabelHtml(track.payload.name) + '</span>';
+    const age = Math.floor(Date.now() / 1000) - track.payload.timestamp;
     if (age > 60*60) {
         content += '<br><span class="ppl-time">' + Math.floor(age/60/60) + 'h ago</span>';
     } else if (age > 30*60) {
@@ -114,25 +113,24 @@ function updateTrack(contactId) {
         content += '<br><span class="ppl-time">¼h ago</span>';
     }
 
-    var lastLine = track.lines.length - 1;
-    var lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
-    if (track.marker == null) {
-        track.marker = L.marker(lastLatLng, {
-                icon: pinIcon,
-                opacity: 0
-            }).addTo(map);
-        var tooltip = L.tooltip({
-                content: content,
-                permanent: true,
-                interactive: true,
-                direction: 'bottom',
-                offset: [0, -28],
-                className: 'ppl-tooltip'
-            });
-        track.marker.bindTooltip(tooltip).openTooltip();
-    } else {
-        track.marker.setLatLng(lastLatLng);
+    const lastLine = track.lines.length - 1;
+    const lastLatLng = track.lines[lastLine][ track.lines[lastLine].length-1 ];
+    if (track.marker) {
+        map.removeLayer(track.marker);
     }
+    track.marker = L.marker(lastLatLng, {
+            icon: pinIcon,
+            opacity: 0
+        }).addTo(map);
+    var tooltip = L.tooltip({
+            content: content,
+            permanent: true,
+            interactive: true,
+            direction: 'bottom',
+            offset: [0, -28],
+            className: 'ppl-tooltip'
+        });
+    track.marker.bindTooltip(tooltip).openTooltip();
     track.marker.unbindPopup();
     track.marker.on('click', function () {
         if (!track.marker.getPopup()) {
@@ -147,6 +145,9 @@ function updateTracks() {
     }
 }
 
+setInterval(() => {
+    updateTracks(); // update is needed for the relative time shown
+}, 60*1000);
 
 
 // share a dedicated location
