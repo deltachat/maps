@@ -111,6 +111,8 @@ function updateTrack(contactId) {
         content += '<br><span class="ppl-time">½h ago</span>';
     } else if (age > 15*60) {
         content += '<br><span class="ppl-time">¼h ago</span>';
+    } else {
+        content += '<br><span class="ppl-online"></span>';
     }
 
     const lastLine = track.lines.length - 1;
