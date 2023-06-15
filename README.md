@@ -9,6 +9,8 @@ of Delta Chat with https://github.com/deltachat/deltachat-android/pull/2378 (the
 
 [Download .xdc from Release Assets](https://github.com/r10s/maps/releases), attach to "Saved Messages" as described above and travel the world!
 
+[Online Demo](https://r10s.github.io/maps/)
+
 ## Building
 
 to create a `.xdc` file that can be attached to a Delta Chat group, execute:
