@@ -7,9 +7,11 @@ of Delta Chat with https://github.com/deltachat/deltachat-android/pull/2378 (the
 
 ![Maps Screenshot](images/screenshot.jpg)
 
-[Download .xdc from Release Assets](https://github.com/r10s/maps/releases), attach to "Saved Messages" as described above and travel the world!
+[Download .xdc from Release Assets](https://codeberg.org/r10s/maps/releases), attach to "Saved Messages" as described above and travel the world!
 
+<!-- 
 [Online Demo](https://r10s.github.io/maps/)
+-->
 
 ## Building
 
