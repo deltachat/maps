@@ -1,8 +1,8 @@
 # Maps Integration for Delta Chat clients
 
-> An "Integration" is a [`.xdc` file](https://webxdc.org)
-> that speaks to the deltachat-core-library instead of to other .xdc instances.
-> From the view of the messenger implementor, the integrations behave like normal `.xdc` files
+> An "Integration" is a [webxdc file](https://webxdc.org)
+> that speaks to the deltachat-core-library instead of other webxdc instances.
+> From the view of the messenger implementor, the integrations behave like a normal webxdc.
 
 To use this integration in a client,
 get a [core](https://github.com/deltachat/deltachat-core-rust/) with 1.137.4 or newer,
@@ -28,8 +28,11 @@ it is not bound to Leaflet.
 
 ## Building
 
-to create a `.xdc` file that can be attached to a Delta Chat group, execute:
+to create `maps.xdc` file, execute:
 
 ```sh
 ./create-xdc.sh
 ```
+
+Note, that `maps.xdc` is meant to be used as an integration as described below
+and will work only limited when send to a chat.
