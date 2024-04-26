@@ -1,15 +1,30 @@
-# leaflet on webxdc
+# Maps Integration for Delta Chat clients
 
-this little demonstration shows a map using [leaflet](https://leafletjs.com) in a [webxdc](https://webxdc.org) mini app.
+> An "Integration" is a [`.xdc` file](https://webxdc.org)
+> that speaks to the deltachat-core-library instead of to other .xdc instances.
+> From the view of the messenger implementor, the integrations behave like normal `.xdc` files
 
-the map needs `internet_access` to be enabled, which currently requires the app to be used in "Saved Messages"
-of Delta Chat with https://github.com/deltachat/deltachat-android/pull/2378 (the feature is not yet released anywhere).
+To use this integration in a client,
+get a [core](https://github.com/deltachat/deltachat-core-rust/) with 1.137.4 or newer,
+build `maps.xdc` as described below,
+add it to the client using
+[`dc_set_webxdc_integration()`/`dc_init_webxdc_integration()`](https://c.delta.chat/classdc__context__t.html#a60fd03f7cae5046ed2b33c095f41eec2)
+and open it as a usual webxdc.
+
+The map is shown using [Leaflet](https://leafletjs.com) and looks like the following:
 
 ![Maps Screenshot](images/screenshot.jpg)
 
-[Download .xdc from Release Assets](https://codeberg.org/r10s/maps/releases), attach to "Saved Messages" as described above and travel the world!
+The protocol used to speak to core is described atop of
+[`maps_integration.rs`](https://github.com/deltachat/deltachat-core-rust/blob/main/src/webxdc/maps_integration.rs).
 
-[Online Demo](https://r10s.codeberg.page/maps/@main/)
+Compared to eg. Mapbox on Android, this solution is
+[8mb smaller and has 2000+ lines less boilerplate code](https://github.com/deltachat/deltachat-android/pull/3005#pullrequestreview-2022776484).
+
+In general, however, the integration could use other maps as well,
+it is not bound to Leaflet.
+
+[Online Demo](https://deltachat.github.io/maps/)
 
 ## Building
 
