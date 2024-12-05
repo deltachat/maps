@@ -49,7 +49,7 @@ For that purpose:
 - In `manifest.toml`, add the entry `request_integration = map`
   (this is already true if you use this repository as a template)
 
-- Attach the `.xdc` to the "Saved Messages" chat.
+- Attach the `.xdc` to the "Saved Messages" chat of Delta Chat 1.50.0 or newer.
   If things work out,
   the summary will read "🌍 Used as map. Delete to use default"
 
