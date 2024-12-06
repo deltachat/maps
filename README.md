@@ -36,3 +36,27 @@ to create `maps.xdc` file, execute:
 
 Note, that `maps.xdc` is meant to be used as an integration as described below
 and will work only limited when send to a chat.
+
+
+## Replace Integrations
+
+Webxdc developers can replace the shipped `maps.xdc` with a tweaked version -
+either use different map sources, different engines
+or add completely new features for tracking, hiking, whatever.
+
+For that purpose:
+
+- In `manifest.toml`, add the entry `request_integration = map`
+  (this is already true if you use this repository as a template)
+
+- Attach the `.xdc` to the "Saved Messages" chat of Delta Chat 1.50.0 or newer.
+  If things work out,
+  the summary will read "🌍 Used as map. Delete to use default"
+
+When now tapping the map symbol _inside any chat_,
+the map replacement is started instead of the shipped one.
+
+Note, that this has to be done locally.
+In a multi-device-setup, you have to perform this action for every device.
+
+The replacing is experimental and not meant for end users yet but for Webxdc developers.
