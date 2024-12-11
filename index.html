@@ -115,11 +115,36 @@
 
             background-color: transparent;
         }
+
+        #mapTileServiceSelector {
+            position: absolute; 
+            top: 10px;       
+            left: 10px;      
+            width: 150px; 
+            height: auto;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            background-color: white; 
+            z-index: 1000; 
+        }
+        #mapTileServiceSelector option {
+            padding: 5px; 
+            background-color: #f9f9f9; 
+            color: #333; 
+        }
+        #mapTileServiceSelector:focus,
+        #mapTileServiceSelector:active {
+            border-color: #999; s
+            outline: none; 
+        }
     </style>
 </head>
 
 <body>
     <div id="map"></div>
+    <script src="mapServices.js"></script>
     <script src="index.js"></script>
 </body>
 

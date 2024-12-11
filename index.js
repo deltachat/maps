@@ -1,24 +1,71 @@
-
 // set up map
-
 var map = L.map('map', {
-        doubleClickZoom: true,
-        zoomControl: false, // added manually below
-        tapHold: true
+        doubleClickZoom: true, 
+        zoomControl: false,
+        tapHold: true 
     });
+
 if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
     map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
 }
+
 map.attributionControl.setPrefix('');
 L.control.scale({position: 'bottomleft'}).addTo(map);
 L.control.zoom({position: 'topright'}).addTo(map);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
+var select = document.createElement('select');
+select.id = 'mapTileServiceSelector';
+
+for (var serviceKey in mapServices) {
+    var option = document.createElement('option');
+    option.value = serviceKey;
+    option.textContent = serviceKey; 
+    select.appendChild(option);
+}
+
+document.body.appendChild(select);
+
+var tileLayer = null;
+var annotationLayer = null;
+
+function addMapService(map, serviceKey) {
+    const service = mapServices[serviceKey];
+    if (!service) return;
+
+    if (tileLayer && map.hasLayer(tileLayer)) {
+        map.removeLayer(tileLayer);
+    }
+    if (annotationLayer && map.hasLayer(annotationLayer)) {
+    map.removeLayer(annotationLayer);
+   }
+    const subdomains = service.subdomains || [];
+
+    tileLayer = L.tileLayer(service.url, {
+        maxZoom: service.options.maxZoom,
+        attribution: service.options.attribution,
+        tms: service.options.tms || false,
+        subdomains: subdomains//service.subdomains.join(',')
     }).addTo(map);
+    
+    if(service.annotationLayer) {
+        const annotationLayersubdomains = service.annotationLayer.subdomains || [];
+        annotationLayer = L.tileLayer(service.annotationLayer.url, {
+        maxZoom: service.annotationLayer.options.maxZoom,
+	 tms: service.annotationLayer.options.tms || false,
+        subdomains: annotationLayersubdomains//service.subdomains.join(',')
+    }).addTo(map);
+    }
+}
+
+//addMapService(map, defaultServiceKey);
+select.value = defaultServiceKey; 
+select.addEventListener('change', function() {
+    const selectedService = this.value;
+    addMapService(map, selectedService);
+});
+select.dispatchEvent(new Event('change'));
 
 var pinIcon = L.icon({
     iconUrl: 'images/pin-icon.png',
@@ -31,10 +78,7 @@ var pinIcon = L.icon({
 var tracks = {};
 var initDone = false;
 
-
-
 // set up webxdc
-
 window.webxdc.setUpdateListener((update) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
@@ -91,10 +135,7 @@ window.webxdc.setUpdateListener((update) => {
     initDone = true;
 });
 
-
-
 // contact's tracks
-
 function updateTrack(contactId) {
     var track = tracks[contactId];
 
@@ -153,7 +194,6 @@ setInterval(() => {
 
 
 // share a dedicated location
-
 var popup;
 var popupLatlng;
 
@@ -192,7 +232,6 @@ map.on('contextmenu', onMapLongClick);
 
 
 // handle position and zoom
-
 function onMapMoveOrZoom(e) {
     localStorage.setItem('map.lat', map.getCenter().lat);
     localStorage.setItem('map.lng', map.getCenter().lng);
@@ -203,9 +242,7 @@ map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
 
 
-
 // tools
-
 function htmlentities(rawStr) {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
 }
