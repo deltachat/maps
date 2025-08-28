@@ -1,2 +1,3 @@
 *.xdc
-
+node_modules*
+dist/*
