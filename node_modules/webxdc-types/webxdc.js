@@ -1,0 +1,1 @@
+/* dummy file so bundler can be happy - see https://github.com/webxdc/webxdc-types/issues/5 */
