@@ -115,11 +115,144 @@
 
             background-color: transparent;
         }
+
+        /* overlay */
+        .overlay {
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .overlay h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 8px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 8px;
+        }
+
+        .contact-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-name {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .contact-time {
+            font-size: 12px;
+            color: #666;
+            margin: 0 8px;
+            white-space: nowrap;
+        }
+
+        .item-button {
+            background: #60a1574a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-left: 5px;
+            height: 32px;
+            width: 32px;
+        }
+
+        .item-button:hover {
+            background: #60a1578b;
+        }
+
+        .no-items {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .toggle-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+            transition: all 0.2s;
+        }
+
+        .toggle-overlay:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .overlay-hidden .overlay {
+            display: none;
+        }
+
+        /* POI overlay specific styles */
+        .poi-toggle {
+            top: 70px;
+        }
+
+        .poi-overlay {
+            top: 70px;
+        }
+
     </style>
 </head>
 
 <body>
     <div id="map"></div>
+    <!-- Toggle button for overlay -->
+    <button class="toggle-overlay" id="toggleOverlay" title="Toggle contacts list">👥</button>
+    <!-- POI toggle button -->
+    <button class="toggle-overlay poi-toggle" id="togglePoiOverlay" title="Toggle POI list">📍</button>
+    <!-- Contacts overlay -->
+    <div class="overlay" id="contactsOverlay">
+        <h3>Contacts</h3>
+        <div id="contactsList">
+            <div class="no-items">No contacts yet</div>
+        </div>
+    </div>
+    <!-- POI overlay -->
+    <div class="overlay poi-overlay" id="poiOverlay" style="left: 70px;">
+        <h3>Points of Interest</h3>
+        <div id="poiList">
+            <div class="no-items">No POIs yet</div>
+        </div>
+    </div>
     <script src="index.js"></script>
 </body>
 
