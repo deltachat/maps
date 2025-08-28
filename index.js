@@ -1,6 +1,55 @@
+/**
+ * @fileoverview Maps application with contact and POI overlays
+ * @ts-check
+ */
 
-// set up map
+/**
+ * @typedef {Object} MapConfig
+ * @property {boolean} doubleClickZoom
+ * @property {boolean} zoomControl
+ * @property {boolean} tapHold
+ */
 
+/**
+ * @typedef {Object} Contact
+ * @property {string} name
+ * @property {string} color
+ * @property {[number, number]} lastPosition
+ * @property {number} lastTimestamp
+ */
+
+/**
+ * @typedef {Object} POI
+ * @property {string} name
+ * @property {string} label
+ * @property {string} color
+ * @property {[number, number]} position
+ * @property {number} timestamp
+ */
+
+/**
+ * @typedef {Object} Track
+ * @property {Array<Array<[number, number]>>} lines
+ * @property {Object} payload
+ * @property {number} lastTimestamp
+ * @property {L.Marker|null} marker
+ * @property {L.Polyline|null} polyline
+ */
+
+/**
+ * @typedef {Object} Payload
+ * @property {string} action - The action type, e.g., "pos"
+ * @property {number} lat - Latitude coordinate
+ * @property {number} lng - Longitude coordinate
+ * @property {number} timestamp - Unix timestamp
+ * @property {number} contactId - Unique ID to differentiate tracks
+ * @property {string} name - Contact name
+ * @property {string} color - Hex color code for the track
+ * @property {boolean} independent - False: current/past position of contact, true: a POI
+ * @property {string} label - Label used for POI only
+ */
+
+/** @type {L.Map} */
 const map = L.map('map', {
         doubleClickZoom: true,
         zoomControl: false, // added manually below
@@ -19,13 +68,21 @@ L.control.zoom({position: 'topright'}).addTo(map);
 let contactOverlayVisible = false;
 let poiOverlayVisible = false;
 const contactsData = new Map(); // Store contact data for the overlay
+/** @type {Map<string, POI>} */
 const poiData = new Map(); // Store POI data for the overlay
 // DOM elements
+/** @type {HTMLElement} */
 const contactOverlay = document.getElementById('contactsOverlay');
+/** @type {HTMLElement} */
 const poiOverlay = document.getElementById('poiOverlay');
+/** @type {HTMLButtonElement} */
 const toggleBtn = document.getElementById('toggleOverlay');
+/** @type {HTMLButtonElement} */
 const poiToggleBtn = document.getElementById('togglePoiOverlay');
 
+/**
+ * Initialize overlay functionality
+ */
 function initOverlay() {
     contactOverlay.style.display = 'none';
     poiOverlay.style.display = 'none';
@@ -55,7 +112,9 @@ function initOverlay() {
     }
 }
 
-// Update the contacts overlay
+/**
+ * Update the contacts overlay
+ */
 function updateContactsOverlay() {
     const contactsList = document.getElementById('contactsList');
 
@@ -84,7 +143,9 @@ function updateContactsOverlay() {
     contactsList.innerHTML = html;
 }
 
-// Update the POI overlay
+/**
+ * Update the POI overlay
+ */
 function updatePoiOverlay() {
     const poiList = document.getElementById('poiList');
 
@@ -113,7 +174,11 @@ function updatePoiOverlay() {
     poiList.innerHTML = html;
 }
 
-// Format timestamp to relative time (e.g., "2h ago", "30m ago", "3d ago")
+/**
+ * Format timestamp to relative time (e.g., "2h ago", "30m ago", "3d ago")
+ * @param {number} timestamp - Unix timestamp
+ * @returns {string} Formatted time string
+ */
 function formatTimeAgo(timestamp) {
     if (!timestamp) return '';
 
@@ -134,7 +199,10 @@ function formatTimeAgo(timestamp) {
     }
 }
 
-// Function to zoom to a specific contact's last position
+/**
+ * Function to zoom to a specific contact's last position
+ * @param {string} contactId - The contact ID to zoom to
+ */
 function zoomToContact(contactId) {
     const contact = contactsData.get(contactId);
     if (contact && contact.lastPosition) {
@@ -144,7 +212,10 @@ function zoomToContact(contactId) {
     }
 }
 
-// Function to zoom to a specific POI
+/**
+ * Function to zoom to a specific POI
+ * @param {string} poiId - The POI ID to zoom to
+ */
 function zoomToPoi(poiId) {
     console.log('poiData contents:', poiData);
     const poi = poiData.get(poiId);
@@ -156,6 +227,10 @@ function zoomToPoi(poiId) {
     }
 }
 
+/**
+ * Zoom to a specific position on the map
+ * @param {[number, number]} position - [latitude, longitude] coordinates
+ */
 function zoomToPosition(position) {
     map.setView(position, 15, {animate: true, duration: 1.2});
 }
@@ -181,6 +256,7 @@ const pinIcon = L.icon({
 });
 
 
+/** @type {Object<string, Track>} */
 const tracks = {};
 let initDone = false;
 
@@ -199,7 +275,13 @@ let initDone = false;
  *   label:       ""     // used for POI only
  * }
  */
-window.webxdc.setUpdateListener((update) => {
+
+/**
+ * @typedef {Object} Update
+ * @property {Payload} payload - The update payload
+ */
+
+window.webxdc.setUpdateListener(/** @param {Update} update */ (update) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
         if (payload.independent) {
@@ -293,6 +375,10 @@ window.webxdc.setUpdateListener((update) => {
 
 // contact's tracks
 
+/**
+ * Update a contact's track on the map
+ * @param {string} contactId - The contact ID to update
+ */
 function updateTrack(contactId) {
     const track = tracks[contactId];
 
@@ -347,6 +433,9 @@ function updateTrack(contactId) {
     });
 }
 
+/**
+ * Update all tracks on the map
+ */
 function updateTracks() {
     for (contactId in tracks) {
         updateTrack(contactId);
@@ -366,6 +455,9 @@ setInterval(() => {
 const popup = null;
 const popupLatlng = null;
 
+/**
+ * Handle sending a POI update
+ */
 function onSend() {
     const elem = document.getElementById('textToSend');
     const value =  elem.value.trim();
@@ -388,6 +480,10 @@ function onSend() {
     }
 }
 
+/**
+ * Handle long click on map to add POI
+ * @param {L.LeafletMouseEvent} e - The mouse event
+ */
 function onMapLongClick(e) {
     popupLatlng = e.latlng;
     popup = L.popup({closeButton: false, keepInView: true})
@@ -402,6 +498,10 @@ map.on('contextmenu', onMapLongClick);
 
 // handle position and zoom
 
+/**
+ * Handle map move or zoom events to save position
+ * @param {L.Event} e - The map event
+ */
 function onMapMoveOrZoom(e) {
     localStorage.setItem('map.lat', map.getCenter().lat);
     localStorage.setItem('map.lng', map.getCenter().lng);
@@ -415,10 +515,20 @@ map.on('zoomend', onMapMoveOrZoom);
 
 // tools
 
+/**
+ * Convert special characters to HTML entities
+ * @param {string} rawStr - The string to convert
+ * @returns {string} HTML-safe string
+ */
 function htmlentities(rawStr) {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
 }
 
+/**
+ * Create a shortened HTML label
+ * @param {string} label - The label to shorten
+ * @returns {string} HTML-formatted shortened label
+ */
 function shortLabelHtml(label) {
     if (label.length > 9) {
         label = htmlentities(label.substring(0, 8).trim()) + "..";
@@ -429,6 +539,11 @@ function shortLabelHtml(label) {
     return label;
 }
 
+/**
+ * Create HTML content for a popup
+ * @param {Payload} payload - The payload data for the popup
+ * @returns {string} HTML content for the popup
+ */
 function popupHtml(payload) {
     return '<div><small><b style="color:'+payload.color+'">' + htmlentities(payload.name) + '</b></small></div>'
         + '<div>' + htmlentities(payload.label) + '</div>'

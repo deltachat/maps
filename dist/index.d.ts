@@ -1,1 +1,0 @@
-import 'webxdc-types/global';
