@@ -1,16 +1,26 @@
+// Reference type definitions
+/// <reference types="leaflet" />
+/// <reference path="node_modules/webxdc-types/global.d.ts" />
+
 
 // set up map
+const map: L.Map = L.map('map', {
+    doubleClickZoom: true,
+    zoomControl: false, // added manually below
+    tapHold: true
+});
 
-const map = L.map('map', {
-        doubleClickZoom: true,
-        zoomControl: false, // added manually below
-        tapHold: true
-    });
 if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
-    map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
+    const lat = localStorage.getItem('map.lat');
+    const lng = localStorage.getItem('map.lng');
+    const zoom = localStorage.getItem('map.zoom');
+    if (lat && lng && zoom) {
+        map.setView([parseFloat(lat), parseFloat(lng)], parseInt(zoom));
+    }
 }
+
 map.attributionControl.setPrefix('');
 L.control.scale({position: 'bottomleft'}).addTo(map);
 L.control.zoom({position: 'topright'}).addTo(map);
@@ -18,18 +28,19 @@ L.control.zoom({position: 'topright'}).addTo(map);
 // Overlay management
 let contactOverlayVisible = false;
 let poiOverlayVisible = false;
-const contactsData = new Map(); // Store contact data for the overlay
-const poiData = new Map(); // Store POI data for the overlay
-// DOM elements
-const contactOverlay = document.getElementById('contactsOverlay');
-const poiOverlay = document.getElementById('poiOverlay');
-const toggleBtn = document.getElementById('toggleOverlay');
-const poiToggleBtn = document.getElementById('togglePoiOverlay');
+const contactsData = new Map<number, ContactData>(); // Store contact data for the overlay
+const poiData = new Map<string, PoiData>(); // Store POI data for the overlay
 
-function initOverlay() {
+// DOM elements
+const contactOverlay = document.getElementById('contactsOverlay') as HTMLElement;
+const poiOverlay = document.getElementById('poiOverlay') as HTMLElement;
+const toggleBtn = document.getElementById('toggleOverlay') as HTMLButtonElement;
+const poiToggleBtn = document.getElementById('togglePoiOverlay') as HTMLButtonElement;
+
+function initOverlay(): void {
     contactOverlay.style.display = 'none';
     poiOverlay.style.display = 'none';
-    toggleBtn.textContent ='👤';
+    toggleBtn.textContent = '👤';
     poiToggleBtn.style.display = 'none'; // Hidden by default
     console.log(tracks);
 
@@ -49,15 +60,15 @@ function initOverlay() {
         showHideOverlays();
     });
 
-    function showHideOverlays() {
+    function showHideOverlays(): void {
         contactOverlay.style.display = contactOverlayVisible ? 'block' : 'none';
         poiOverlay.style.display = poiOverlayVisible ? 'block' : 'none';
     }
 }
 
 // Update the contacts overlay
-function updateContactsOverlay() {
-    const contactsList = document.getElementById('contactsList');
+function updateContactsOverlay(): void {
+    const contactsList = document.getElementById('contactsList') as HTMLElement;
 
     if (contactsData.size === 0) {
         contactsList.innerHTML = '<div class="no-items">No contacts shared their location yet</div>';
@@ -85,8 +96,8 @@ function updateContactsOverlay() {
 }
 
 // Update the POI overlay
-function updatePoiOverlay() {
-    const poiList = document.getElementById('poiList');
+function updatePoiOverlay(): void {
+    const poiList = document.getElementById('poiList') as HTMLElement;
 
     if (poiData.size === 0) {
         poiList.innerHTML = '<div class="no-contacts">No POIs yet</div>';
@@ -114,7 +125,7 @@ function updatePoiOverlay() {
 }
 
 // Format timestamp to relative time (e.g., "2h ago", "30m ago", "3d ago")
-function formatTimeAgo(timestamp) {
+function formatTimeAgo(timestamp: number): string {
     if (!timestamp) return '';
 
     const now = Math.floor(Date.now() / 1000);
@@ -135,7 +146,7 @@ function formatTimeAgo(timestamp) {
 }
 
 // Function to zoom to a specific contact's last position
-function zoomToContact(contactId) {
+function zoomToContact(contactId: number): void {
     const contact = contactsData.get(contactId);
     if (contact && contact.lastPosition) {
         zoomToPosition(contact.lastPosition);
@@ -145,7 +156,7 @@ function zoomToContact(contactId) {
 }
 
 // Function to zoom to a specific POI
-function zoomToPoi(poiId) {
+function zoomToPoi(poiId: string): void {
     console.log('poiData contents:', poiData);
     const poi = poiData.get(poiId);
     console.log('Found poi:', poi);
@@ -156,7 +167,7 @@ function zoomToPoi(poiId) {
     }
 }
 
-function zoomToPosition(position) {
+function zoomToPosition(position: [number, number]): void {
     map.setView(position, 15, {animate: true, duration: 1.2});
 }
 
@@ -168,44 +179,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
-    }).addTo(map);
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+}).addTo(map);
 
 const pinIcon = L.icon({
     iconUrl: 'images/pin-icon.png',
     iconRetinaUrl: 'images/pin-icon-2x.png',
-    iconSize:     [12, 29], // size of the icon
-    iconAnchor:   [6, 29], // point of the icon which will correspond to marker's location
-    popupAnchor:  [0, -29] // point from which the popup should open relative to the iconAnchor
+    iconSize: [12, 29], // size of the icon
+    iconAnchor: [6, 29], // point of the icon which will correspond to marker's location
+    popupAnchor: [0, -29] // point from which the popup should open relative to the iconAnchor
 });
 
-
-const tracks = {};
+const tracks: Tracks = {};
 let initDone = false;
 
-/**
- * @type {Payload}
- * Example payload:
- * {
- *   action:     "pos",
- *   lat:        47.994828,
- *   lng:        7.849881,
- *   timestamp:  1712928222,
- *   contactId:  123,    // can be used as a unique ID to differ tracks etc
- *   name:       "Alice",
- *   color:      "#ff8080",
- *   independent: false, // false: current or past position of contact, true: a POI
- *   label:       ""     // used for POI only
- * }
- */
-window.webxdc.setUpdateListener((update) => {
+window.webxdc.setUpdateListener((update: { payload: Payload }) => {
     const payload = update.payload;
     if (payload.action === 'pos') {
         if (payload.independent) {
             // Store POI data for overlay
             const poiId = 'poi_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            const poiDataObj = {
+            const poiDataObj: PoiData = {
                 name: payload.name,
                 label: payload.label,
                 color: payload.color,
@@ -219,17 +214,19 @@ window.webxdc.setUpdateListener((update) => {
             updatePoiOverlay();
 
             const marker = L.marker([payload.lat, payload.lng], {
-                    icon: pinIcon
-                }).addTo(map);
+                icon: pinIcon
+            }).addTo(map);
+
             if (payload.label) {
                 marker.bindTooltip(shortLabelHtml(payload.label), {
-                        permanent: true,
-                        interactive: true,
-                        direction: 'bottom',
-                        offset: [0, -17],
-                        className: 'poi-tooltip'
-                    }).openTooltip();
+                    permanent: true,
+                    interactive: true,
+                    direction: 'bottom',
+                    offset: [0, -17],
+                    className: 'poi-tooltip'
+                }).openTooltip();
             }
+
             marker.on('click', function () {
                 if (!marker.getPopup()) {
                     marker.bindPopup(popupHtml(payload), { closeButton: false }).openPopup();
@@ -246,10 +243,12 @@ window.webxdc.setUpdateListener((update) => {
                 });
             } else {
                 const contact = contactsData.get(payload.contactId);
-                contact.name = payload.name;
-                contact.color = payload.color;
-                contact.lastPosition = [payload.lat, payload.lng];
-                contact.lastTimestamp = payload.timestamp;
+                if (contact) {
+                    contact.name = payload.name;
+                    contact.color = payload.color;
+                    contact.lastPosition = [payload.lat, payload.lng];
+                    contact.lastTimestamp = payload.timestamp;
+                }
             }
 
             // Update overlay
@@ -274,7 +273,10 @@ window.webxdc.setUpdateListener((update) => {
                     tracks[payload.contactId].lines[lastLine].push(tracks[payload.contactId].lines[lastLine][0]);
                 }
                 tracks[payload.contactId].lines.push([]);
-                lastLine++;
+                const newLastLine = lastLine + 1;
+                if (initDone) {
+                    updateTrack(payload.contactId);
+                }
             }
 
             tracks[payload.contactId].lines[lastLine].push([payload.lat, payload.lng]);
@@ -289,11 +291,8 @@ window.webxdc.setUpdateListener((update) => {
     initDone = true;
 });
 
-
-
 // contact's tracks
-
-function updateTrack(contactId) {
+function updateTrack(contactId: number): void {
     const track = tracks[contactId];
 
     if (track.polyline) {
@@ -319,25 +318,29 @@ function updateTrack(contactId) {
     // Update contacts data with latest position
     if (contactsData.has(contactId)) {
         const contact = contactsData.get(contactId);
-        contact.lastPosition = lastLatLng;
-        contact.lastTimestamp = track.lastTimestamp;
+        if (contact) {
+            contact.lastPosition = lastLatLng;
+            contact.lastTimestamp = track.lastTimestamp;
+        }
     }
 
     if (track.marker) {
         map.removeLayer(track.marker);
     }
     track.marker = L.marker(lastLatLng, {
-            icon: pinIcon,
-            opacity: 0
-        }).addTo(map);
+        icon: pinIcon,
+        opacity: 0
+    }).addTo(map);
+
     const tooltip = L.tooltip({
-            content: content,
-            permanent: true,
-            interactive: true,
-            direction: 'bottom',
-            offset: [0, -28],
-            className: 'ppl-tooltip'
-        });
+        content: content,
+        permanent: true,
+        interactive: true,
+        direction: 'bottom',
+        offset: [0, -28],
+        className: 'ppl-tooltip'
+    });
+
     track.marker.bindTooltip(tooltip).openTooltip();
     track.marker.unbindPopup();
     track.marker.on('click', function () {
@@ -347,9 +350,9 @@ function updateTrack(contactId) {
     });
 }
 
-function updateTracks() {
-    for (contactId in tracks) {
-        updateTrack(contactId);
+function updateTracks(): void {
+    for (const contactId in tracks) {
+        updateTrack(parseInt(contactId));
     }
     // Update overlays after updating all tracks
     updateContactsOverlay();
@@ -360,66 +363,63 @@ setInterval(() => {
     updateTracks(); // update is needed for the relative time shown
 }, 60*1000);
 
-
 // share a dedicated location
+let popup: L.Popup | null = null;
+let popupLatlng: L.LatLng | null = null;
 
-const popup = null;
-const popupLatlng = null;
-
-function onSend() {
-    const elem = document.getElementById('textToSend');
-    const value =  elem.value.trim();
-    if (value != "") {
+function onSend(): void {
+    const elem = document.getElementById('textToSend') as HTMLInputElement;
+    const value = elem.value.trim();
+    if (value != "" && popup && popupLatlng) {
         popup.close();
-        webxdc.sendUpdate({
-                payload: {
-                    action: 'pos',
-                    independent: true,
-                    timestamp: Math.floor(Date.now() / 1000),
-                    lat: popupLatlng.lat,
-                    lng: popupLatlng.lng,
-                    label: elem.value,
-                    name: webxdc.selfName,
-                    color: '#888'
-                },
-            }, 'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value);
+        window.webxdc.sendUpdate({
+            payload: {
+                action: 'pos',
+                independent: true,
+                timestamp: Math.floor(Date.now() / 1000),
+                lat: popupLatlng.lat,
+                lng: popupLatlng.lng,
+                label: elem.value,
+                name: window.webxdc.selfName,
+                color: '#888',
+                contactId: 0 // Required by interface but not used for POIs
+            },
+        }, 'POI added to map at ' + popupLatlng.lat.toFixed(4) + '/' + popupLatlng.lng.toFixed(4) + ' with text: ' + value);
     } else {
-        elem.placeholder = elem.placeholder == 'Label' ? "Enter label" : "Label"; // just some cheap visual feedback
+        if (elem.placeholder === 'Label') {
+            elem.placeholder = "Enter label";
+        } else {
+            elem.placeholder = "Label";
+        } // just some cheap visual feedback
     }
 }
 
-function onMapLongClick(e) {
+function onMapLongClick(e: L.LeafletMouseEvent): void {
     popupLatlng = e.latlng;
     popup = L.popup({closeButton: false, keepInView: true})
         .setLatLng(popupLatlng)
-        .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>')
+        .setContent('<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id="textToSend" placeholder="Label"><br><button onclick="onSend()">Send</button></div>')
         .openOn(map);
 }
 
 map.on('contextmenu', onMapLongClick);
 
-
-
 // handle position and zoom
-
-function onMapMoveOrZoom(e) {
-    localStorage.setItem('map.lat', map.getCenter().lat);
-    localStorage.setItem('map.lng', map.getCenter().lng);
-    localStorage.setItem('map.zoom', map.getZoom());
+function onMapMoveOrZoom(e: L.LeafletEvent): void {
+    localStorage.setItem('map.lat', map.getCenter().lat.toString());
+    localStorage.setItem('map.lng', map.getCenter().lng.toString());
+    localStorage.setItem('map.zoom', map.getZoom().toString());
 }
 
 map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
 
-
-
 // tools
-
-function htmlentities(rawStr) {
+function htmlentities(rawStr: string): string {
     return rawStr.replace(/[\u00A0-\u9999<>\&]/g, ((i) => `&#${i.charCodeAt(0)};`));
 }
 
-function shortLabelHtml(label) {
+function shortLabelHtml(label: string): string {
     if (label.length > 9) {
         label = htmlentities(label.substring(0, 8).trim()) + "..";
     } else if (label.length <= 4) {
@@ -429,11 +429,16 @@ function shortLabelHtml(label) {
     return label;
 }
 
-function popupHtml(payload) {
+function popupHtml(payload: Payload): string {
     return '<div><small><b style="color:'+payload.color+'">' + htmlentities(payload.name) + '</b></small></div>'
-        + '<div>' + htmlentities(payload.label) + '</div>'
+        + '<div>' + htmlentities(payload.label || '') + '</div>'
         + '<div><small>'
         + payload.lat.toFixed(4) + '°/' + payload.lng.toFixed(4) + '°<br>'
         + htmlentities(new Date(payload.timestamp*1000).toLocaleString())
         + '</small></div>';
 }
+
+// Make functions globally available for onclick handlers
+(window as any).zoomToContact = zoomToContact;
+(window as any).zoomToPoi = zoomToPoi;
+(window as any).onSend = onSend;

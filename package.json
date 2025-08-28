@@ -1,0 +1,28 @@
+{
+  "name": "maps-webxdc",
+  "version": "1.0.0",
+  "description": "A webxdc maps application with TypeScript",
+  "main": "index.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "watch": "tsc --watch",
+    "dev": "npm run build && python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.20",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "webxdc",
+    "maps",
+    "typescript",
+    "leaflet"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/geojson": "^7946.0.16",
+    "webxdc-types": "^1.0.1"
+  }
+}

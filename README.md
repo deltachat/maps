@@ -28,6 +28,17 @@ it is not bound to Leaflet.
 
 ## Building
 
+first time run:
+
+```sh
+npm install
+```
+After changes run
+
+```sh
+npm run build
+```
+
 to create `maps.xdc` file, execute:
 
 ```sh

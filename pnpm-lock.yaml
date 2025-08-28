@@ -1,0 +1,51 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
+      webxdc-types:
+        specifier: ^1.0.1
+        version: 1.0.1
+    devDependencies:
+      '@types/leaflet':
+        specifier: ^1.9.20
+        version: 1.9.20
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.2
+
+packages:
+
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
+  '@types/leaflet@1.9.20':
+    resolution: {integrity: sha512-rooalPMlk61LCaLOvBF2VIf9M47HgMQqi5xQ9QRi7c8PkdIe0WrIi5IxXUXQjAdL0c+vcQ01mYWbthzmp9GHWw==}
+
+  typescript@5.9.2:
+    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  webxdc-types@1.0.1:
+    resolution: {integrity: sha512-voocssWnUiMoJoicPWmCKnjd6OG8TNuUq+5n9+0gMSBMg0h1KxapnN9Vq6WssK0jhKcGBSZvcQf8tGK+X88IaQ==}
+
+snapshots:
+
+  '@types/geojson@7946.0.16': {}
+
+  '@types/leaflet@1.9.20':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
+  typescript@5.9.2: {}
+
+  webxdc-types@1.0.1: {}
