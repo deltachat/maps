@@ -1,126 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-    <script src="webxdc.js"></script>
-    <link rel="stylesheet" href="leaflet.css"/>
-    <script src="leaflet.js"></script>
-    <style type="text/css">
-        body {
-            padding: 0;
-            margin: 0;
-        }
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+        />
+        <script src="webxdc.js"></script>
+        <link rel="stylesheet" href="leaflet.css" />
+        <script src="leaflet.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    </head>
 
-        html, body, #map {
-            height: 100%;
-            width: 100vw;
-        }
-
-        #map {
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        .poi-tooltip {
-            font-weight: bold;
-            font-size: 15px;
-            color: #ff3b30;
-            text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff;
-            background: transparent;
-            box-shadow: none;
-            border: none;
-        }
-        .ppl-tooltip {
-            text-align: right;
-            font-size: 15px;
-            color: white;
-            text-shadow: none;
-            background: transparent;
-            box-shadow: none;
-            border: none;
-        }
-        .ppl-name {
-            padding: 0 5px;
-            font-weight: bold;
-            border: 1px solid white;
-            border-radius: 10px;
-        }
-        .ppl-time {
-            text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff !important;
-            position: relative;
-            color: #333;
-            font-size: 12px;
-            top: -7px;
-        }
-        .ppl-online {
-            height: 10px; width: 10px;
-            border: 1px solid white;
-            border-radius: 50%;
-            display: inline-block;
-            position: relative; right: -4px; top: -14px;
-            background-color: #34c759;
-        }
-        .poi-tooltip::before, .ppl-tooltip::before {
-            border: none;
-        }
-
-        .leaflet-control-scale-line {
-            text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff;
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .leaflet-control-attribution {
-            text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, 1px -1px 1px #fff, -1px 1px 1px #fff !important;
-	        background: transparent !important;
-	        padding: 2px 6px;
-        }
-
-        .leaflet-top {
-            top: 45%;
-            background: transparent !important;
-        }
-        .leaflet-control-zoom {
-            border: 0 !important;
-        }
-        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
-            color: #333 !important;
-            font-size: 30px !important;
-        }
-        .leaflet-bar a {
-            border-radius: 50% !important;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            margin: 10px;
-        }
-
-        .formx {
-            text-align: center;
-        }
-        .formx input, .formx button {
-            text-align: center;
-            font-size: 16px;
-            border: 1px solid #BBB;
-            border-radius: 8px;
-        }
-        .formx button {
-            margin-top: 4px;
-
-            background-color: transparent;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="map"></div>
-    <script src="index.js"></script>
-</body>
-
+    <body>
+        <div id="map"></div>
+        <!-- Toggle button for overlay -->
+        <button
+            class="toggle-overlay"
+            id="toggleOverlay"
+            title="Toggle contacts list"
+        >
+            👥
+        </button>
+        <!-- POI toggle button -->
+        <button
+            class="toggle-overlay poi-toggle"
+            id="togglePoiOverlay"
+            title="Toggle POI list"
+        >
+            📍
+        </button>
+        <!-- Contacts overlay -->
+        <div class="overlay" id="contactsOverlay">
+            <h3>Contacts</h3>
+            <div id="contactsList">
+                <div class="no-items">No contacts yet</div>
+            </div>
+        </div>
+        <!-- POI overlay -->
+        <div class="overlay poi-overlay" id="poiOverlay">
+            <h3>Points of Interest</h3>
+            <div id="poiList">
+                <div class="no-items">No POIs yet</div>
+            </div>
+        </div>
+        <script src="mapServices.js"></script>
+        <script src="index.js"></script>
+    </body>
 </html>
