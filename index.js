@@ -21,8 +21,7 @@ if (/wv/.test(navigator.userAgent) && /Android/.test(navigator.userAgent)) {
     document.body.classList.add('android-webview');
 }
 
-var select = document.createElement("select");
-select.id = "mapTileServiceSelector";
+var select = document.getElementById("mapTileServiceSelector");
 
 for (var serviceKey in mapServices) {
     var option = document.createElement("option");
@@ -30,8 +29,6 @@ for (var serviceKey in mapServices) {
     option.textContent = serviceKey;
     select.appendChild(option);
 }
-
-document.body.appendChild(select);
 
 var tileLayer = null;
 var annotationLayer = null;
@@ -98,25 +95,62 @@ const pinIcon = L.icon({
 // Overlay management
 let contactOverlayVisible = false;
 let poiOverlayVisible = false;
+let settingsOverlayVisible = false;
 const contactsData = new Map(); // Store contact data for the overlay
 const poiData = new Map(); // Store POI data for the overlay
+
+// Settings management
+let showContactToggle = false;
+let showPoiToggle = false;
+
 // DOM elements
 const contactOverlay = document.getElementById("contactsOverlay");
 const poiOverlay = document.getElementById("poiOverlay");
+const settingsOverlay = document.getElementById("settingsOverlay");
 const toggleBtn = document.getElementById("toggleOverlay");
 const poiToggleBtn = document.getElementById("togglePoiOverlay");
+const settingsBtn = document.getElementById("settingsButton");
+const showContactToggleCheckbox = document.getElementById("showContactToggle");
+const showPoiToggleCheckbox = document.getElementById("showPoiToggle");
+
+// Load settings from localStorage
+function loadSettings() {
+    showContactToggle = localStorage.getItem("showContactToggle") === "true";
+    showPoiToggle = localStorage.getItem("showPoiToggle") === "true";
+    
+    showContactToggleCheckbox.checked = showContactToggle;
+    showPoiToggleCheckbox.checked = showPoiToggle;
+    
+    updateToggleVisibility();
+}
+
+// Save settings to localStorage
+function saveSettings() {
+    localStorage.setItem("showContactToggle", showContactToggle.toString());
+    localStorage.setItem("showPoiToggle", showPoiToggle.toString());
+}
+
+// Update toggle button visibility based on settings
+function updateToggleVisibility() {
+    toggleBtn.style.display = showContactToggle ? "block" : "none";
+    poiToggleBtn.style.display = showPoiToggle ? "block" : "none";
+}
 
 function initOverlay() {
     contactOverlay.style.display = "none";
     poiOverlay.style.display = "none";
+    settingsOverlay.style.display = "none";
     toggleBtn.textContent = "👤";
-    poiToggleBtn.style.display = "none"; // Hidden by default
+    
+    // Load settings and update visibility
+    loadSettings();
     console.log(tracks);
 
     toggleBtn.addEventListener("click", function () {
         contactOverlayVisible = !contactOverlayVisible;
         if (contactOverlayVisible) {
             poiOverlayVisible = false;
+            settingsOverlayVisible = false;
         }
         showHideOverlays();
     });
@@ -125,13 +159,37 @@ function initOverlay() {
         poiOverlayVisible = !poiOverlayVisible;
         if (poiOverlayVisible) {
             contactOverlayVisible = false;
+            settingsOverlayVisible = false;
         }
         showHideOverlays();
+    });
+
+    settingsBtn.addEventListener("click", function () {
+        settingsOverlayVisible = !settingsOverlayVisible;
+        if (settingsOverlayVisible) {
+            contactOverlayVisible = false;
+            poiOverlayVisible = false;
+        }
+        showHideOverlays();
+    });
+
+    // Settings checkbox event listeners
+    showContactToggleCheckbox.addEventListener("change", function () {
+        showContactToggle = this.checked;
+        saveSettings();
+        updateToggleVisibility();
+    });
+
+    showPoiToggleCheckbox.addEventListener("change", function () {
+        showPoiToggle = this.checked;
+        saveSettings();
+        updateToggleVisibility();
     });
 
     function showHideOverlays() {
         contactOverlay.style.display = contactOverlayVisible ? "block" : "none";
         poiOverlay.style.display = poiOverlayVisible ? "block" : "none";
+        settingsOverlay.style.display = settingsOverlayVisible ? "block" : "none";
     }
 }
 
@@ -142,12 +200,19 @@ function updateContactsOverlay() {
     if (contactsData.size === 0) {
         contactsList.innerHTML =
             '<div class="no-items">No contacts shared their location yet</div>';
+        // Only hide contact toggle if setting is disabled, otherwise respect the setting
+        if (!showContactToggle) {
+            toggleBtn.style.display = "none";
+        }
         return;
     }
 
     if (contactsData.size > 1) {
         toggleBtn.textContent = "👥";
     }
+
+    // Show contact toggle button if there are contacts AND setting is enabled
+    toggleBtn.style.display = showContactToggle ? "block" : "none";
 
     let html = "";
     contactsData.forEach((contact, contactId) => {
@@ -173,12 +238,15 @@ function updatePoiOverlay() {
 
     if (poiData.size === 0) {
         poiList.innerHTML = '<div class="no-contacts">No POIs yet</div>';
-        poiToggleBtn.style.display = "none";
+        // Only hide POI toggle if setting is disabled, otherwise respect the setting
+        if (!showPoiToggle) {
+            poiToggleBtn.style.display = "none";
+        }
         return;
     }
 
-    // Show POI toggle button if there are POIs
-    poiToggleBtn.style.display = "block";
+    // Show POI toggle button if there are POIs AND setting is enabled
+    poiToggleBtn.style.display = showPoiToggle ? "block" : "none";
 
     let html = "";
     poiData.forEach((poi, poiId) => {
