@@ -107,36 +107,6 @@ html, body, #map {
     background-color: transparent;
 }
 
-/*** map tile selector ***/
-
-#mapTileServiceSelector {
-    position: absolute;
-    bottom: 26px;
-    right: 10px;
-    width: 150px;
-    height: auto;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    z-index: 1000;
-}
-
-.android-webview #mapTileServiceSelector {
-    width: 190px !important;
-}
-
-#mapTileServiceSelector option {
-    padding: 10 px;
-    background-color: #f9f9f9;
-    color: #333;
-}
-#mapTileServiceSelector:focus,
-#mapTileServiceSelector:active {
-    border-color: #999; s
-    outline: none;
-}
 
 /*** overlays ***/
 
@@ -332,4 +302,96 @@ html, body, #map {
     /* Ensure icon is perfectly centered */
     display: block;
     margin: auto;
+}
+
+/* Settings button */
+.settings-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.settings-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+}
+
+.settings-button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin: auto;
+}
+
+/* Settings overlay */
+.settings-overlay {
+    top: 20px;
+    right: 90px;
+    left: auto;
+    max-width: 280px;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item label {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    flex: 1;
+    padding-right: 5px;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #007AFF;
+}
+
+.setting-item select {
+    width: 120px;
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.setting-item select:focus {
+    border-color: #007AFF;
+    outline: none;
 }

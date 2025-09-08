@@ -44,6 +44,32 @@
                 <div class="no-items">No POIs yet</div>
             </div>
         </div>
+        <!-- Settings button -->
+        <button
+            class="settings-button"
+            id="settingsButton"
+            title="Settings"
+        >
+            <img src="images/settings.svg" alt="Settings" />
+        </button>
+        <!-- Settings overlay -->
+        <div class="overlay settings-overlay" id="settingsOverlay">
+            <h3>Settings</h3>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label for="showContactToggle">Show Contact Toggle</label>
+                    <input type="checkbox" id="showContactToggle" />
+                </div>
+                <div class="setting-item">
+                    <label for="showPoiToggle">Show POI Toggle</label>
+                    <input type="checkbox" id="showPoiToggle" />
+                </div>
+                <div class="setting-item">
+                    <label for="mapTileServiceSelector">Map Style</label>
+                    <select id="mapTileServiceSelector"></select>
+                </div>
+            </div>
+        </div>
         <script src="mapServices.js"></script>
         <script src="index.js"></script>
     </body>
