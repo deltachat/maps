@@ -49,8 +49,9 @@ function addMapService(map, serviceKey) {
         map.removeLayer(annotationLayer);
     }
     const subdomains = service.subdomains || [];
-
-    tileLayer = L.tileLayer(service.url, {
+    // desktop does not allow electron to access internet directly
+    const protocol = navigator.userAgent.includes('Electron') ? 'maps:' : 'https:';
+    tileLayer = L.tileLayer(service.url.replace('https:', protocol), {
         maxZoom: service.options.maxZoom,
         attribution: service.options.attribution,
         tms: service.options.tms || false,
@@ -60,7 +61,7 @@ function addMapService(map, serviceKey) {
     if (service.annotationLayer) {
         const annotationLayersubdomains =
             service.annotationLayer.subdomains || [];
-        annotationLayer = L.tileLayer(service.annotationLayer.url, {
+        annotationLayer = L.tileLayer(service.annotationLayer.url.replace('https:', protocol), {
             maxZoom: service.annotationLayer.options.maxZoom,
             tms: service.annotationLayer.options.tms || false,
             subdomains: annotationLayersubdomains, //service.subdomains.join(',')
