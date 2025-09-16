@@ -1,4 +1,4 @@
-const defaultServiceKey = 'OSmap.de';
+const defaultServiceKey = 'OpenStreetMap';
 const mapServices = {
     'OpenStreetMap': {
         url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
