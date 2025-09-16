@@ -1,4 +1,7 @@
-// set up map
+// on desktop we can't use multiple map services as long as
+// https://github.com/deltachat/deltachat-desktop/pull/5455 is not merged
+
+const enableMultiMapServices = !navigator.userAgent.includes("Electron");
 
 var map = L.map("map", {
     doubleClickZoom: true,
@@ -18,71 +21,84 @@ L.control.scale({ position: "bottomleft" }).addTo(map);
 L.control.zoom({ position: "topright" }).addTo(map);
 
 if (/wv/.test(navigator.userAgent) && /Android/.test(navigator.userAgent)) {
-    document.body.classList.add('android-webview');
+    document.body.classList.add("android-webview");
 }
 
-var select = document.getElementById("mapTileServiceSelector");
+if (enableMultiMapServices) {
+    var select = document.getElementById("mapTileServiceSelector");
 
-for (var serviceKey in mapServices) {
-    var option = document.createElement("option");
-    option.value = serviceKey;
-    option.textContent = serviceKey;
-    select.appendChild(option);
-}
-
-var tileLayer = null;
-var annotationLayer = null;
-
-function addMapService(map, serviceKey) {
-    localStorage.setItem("map.tileService", serviceKey);
-    console.log("Switching tile service to:", serviceKey);
-    const service = mapServices[serviceKey];
-    if (!service) return;
-
-    if (tileLayer && map.hasLayer(tileLayer)) {
-        map.removeLayer(tileLayer);
+    for (var serviceKey in mapServices) {
+        var option = document.createElement("option");
+        option.value = serviceKey;
+        option.textContent = serviceKey;
+        select.appendChild(option);
     }
-    if (annotationLayer && map.hasLayer(annotationLayer)) {
-        map.removeLayer(annotationLayer);
-    }
-    const subdomains = service.subdomains || [];
-    // desktop does not allow electron to access internet directly
-    const protocol = navigator.userAgent.includes('Electron') ? 'maps:' : 'https:';
-    tileLayer = L.tileLayer(service.url.replace('https:', protocol), {
-        maxZoom: service.options.maxZoom,
-        attribution: service.options.attribution,
-        tms: service.options.tms || false,
-        subdomains: subdomains, //service.subdomains.join(',')
-    }).addTo(map);
 
-    if (service.annotationLayer) {
-        const annotationLayersubdomains =
-            service.annotationLayer.subdomains || [];
-        annotationLayer = L.tileLayer(service.annotationLayer.url.replace('https:', protocol), {
-            maxZoom: service.annotationLayer.options.maxZoom,
-            tms: service.annotationLayer.options.tms || false,
-            subdomains: annotationLayersubdomains, //service.subdomains.join(',')
+    var tileLayer = null;
+    var annotationLayer = null;
+
+    function addMapService(map, serviceKey) {
+        localStorage.setItem("map.tileService", serviceKey);
+        console.log("Switching tile service to:", serviceKey);
+        const service = mapServices[serviceKey];
+        if (!service) return;
+
+        if (tileLayer && map.hasLayer(tileLayer)) {
+            map.removeLayer(tileLayer);
+        }
+        if (annotationLayer && map.hasLayer(annotationLayer)) {
+            map.removeLayer(annotationLayer);
+        }
+        const subdomains = service.subdomains || [];
+        // desktop does not allow electron to access internet directly
+        const protocol = navigator.userAgent.includes("Electron")
+            ? "maps:"
+            : "https:";
+        tileLayer = L.tileLayer(service.url.replace("https:", protocol), {
+            maxZoom: service.options.maxZoom,
+            attribution: service.options.attribution,
+            tms: service.options.tms || false,
+            subdomains: subdomains, //service.subdomains.join(',')
         }).addTo(map);
+
+        if (service.annotationLayer) {
+            const annotationLayersubdomains =
+                service.annotationLayer.subdomains || [];
+            annotationLayer = L.tileLayer(
+                service.annotationLayer.url.replace("https:", protocol),
+                {
+                    maxZoom: service.annotationLayer.options.maxZoom,
+                    tms: service.annotationLayer.options.tms || false,
+                    subdomains: annotationLayersubdomains, //service.subdomains.join(',')
+                }
+            ).addTo(map);
+        }
     }
-}
 
-select.addEventListener("change", function () {
-    const selectedService = this.value;
-    console.log("Selected tile service:", selectedService);
-    addMapService(map, selectedService);
-});
+    select.addEventListener("change", function () {
+        const selectedService = this.value;
+        console.log("Selected tile service:", selectedService);
+        addMapService(map, selectedService);
+    });
 
-let tileServiceKey = defaultServiceKey; 
-if (localStorage.getItem("map.tileService") !== null) {
-    tileServiceKey = localStorage.getItem("map.tileService");
-    console.log("Restoring tile service:", tileServiceKey);
+    let tileServiceKey = defaultServiceKey;
+    if (localStorage.getItem("map.tileService") !== null) {
+        tileServiceKey = localStorage.getItem("map.tileService");
+        console.log("Restoring tile service:", tileServiceKey);
+    } else {
+        console.log("Using default tile service:", defaultServiceKey);
+    }
+
+    select.value = tileServiceKey;
+    select.dispatchEvent(new Event("change"));
 } else {
-    console.log("Using default tile service:", defaultServiceKey);
+    document.getElementById("mapTileServiceSelector").parentElement.style.display = "none";
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap',
+            tms: false,
+        }).addTo(map);
 }
-
-select.value = tileServiceKey;
-select.dispatchEvent(new Event("change"));
-
 
 const pinIcon = L.icon({
     iconUrl: "images/pin-icon.png",
@@ -117,10 +133,10 @@ const showPoiToggleCheckbox = document.getElementById("showPoiToggle");
 function loadSettings() {
     showContactToggle = localStorage.getItem("showContactToggle") === "true";
     showPoiToggle = localStorage.getItem("showPoiToggle") === "true";
-    
+
     showContactToggleCheckbox.checked = showContactToggle;
     showPoiToggleCheckbox.checked = showPoiToggle;
-    
+
     updateToggleVisibility();
 }
 
@@ -141,7 +157,7 @@ function initOverlay() {
     poiOverlay.style.display = "none";
     settingsOverlay.style.display = "none";
     toggleBtn.textContent = "👤";
-    
+
     // Load settings and update visibility
     loadSettings();
     console.log(tracks);
@@ -185,12 +201,13 @@ function initOverlay() {
         saveSettings();
         updateToggleVisibility();
     });
+}
 
-    function showHideOverlays() {
-        contactOverlay.style.display = contactOverlayVisible ? "block" : "none";
-        poiOverlay.style.display = poiOverlayVisible ? "block" : "none";
-        settingsOverlay.style.display = settingsOverlayVisible ? "block" : "none";
-    }
+// Global function to show/hide overlays
+function showHideOverlays() {
+    contactOverlay.style.display = contactOverlayVisible ? "block" : "none";
+    poiOverlay.style.display = poiOverlayVisible ? "block" : "none";
+    settingsOverlay.style.display = settingsOverlayVisible ? "block" : "none";
 }
 
 // Update the contacts overlay
@@ -581,6 +598,14 @@ function onMapMoveOrZoom(e) {
 
 map.on("moveend", onMapMoveOrZoom);
 map.on("zoomend", onMapMoveOrZoom);
+
+// Close overlays when clicking on the map
+map.on("click", function () {
+    contactOverlayVisible = false;
+    poiOverlayVisible = false;
+    settingsOverlayVisible = false;
+    showHideOverlays();
+});
 
 // tools
 
