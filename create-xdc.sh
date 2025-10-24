@@ -14,7 +14,7 @@ case "$1" in
 esac
 
 rm "$PACKAGE_NAME.xdc" 2> /dev/null
-zip -9 --recurse-paths "$PACKAGE_NAME.xdc" * --exclude LICENSE README.md webxdc.js webxdc.d.ts icon.png "*screenshot*" "*marker-*png" "*-src*" "*.map" "*.sh" "*.xdc" *.DS_Store
+zip -9 --recurse-paths "$PACKAGE_NAME.xdc" * --exclude LICENSE README.md webxdc.js webxdc.d.ts "*screenshot*" "*marker-*png" "*-src*" "*.map" "*.sh" "*.xdc" *.DS_Store
 
 echo "success, archive contents:"
 unzip -l "$PACKAGE_NAME.xdc"
