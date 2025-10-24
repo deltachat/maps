@@ -15,10 +15,16 @@ map.attributionControl.setPrefix('');
 L.control.scale({position: 'bottomleft'}).addTo(map);
 L.control.zoom({position: 'topright'}).addTo(map);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
-    }).addTo(map);
+let url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+if (navigator.userAgent.includes('Electron')) {
+    url = 'maps://tile.openstreetmap.org/{z}/{x}/{y}.png';
+}
+
+let tileLayer = L.tileLayer(url, {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+}).addTo(map);
 
 var pinIcon = L.icon({
     iconUrl: 'images/pin-icon.png',
