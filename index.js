@@ -1,108 +1,94 @@
-// on desktop we can't use multiple map services as long as
-// https://github.com/deltachat/deltachat-desktop/pull/5455 is not merged
-
-const enableMultiMapServices = !navigator.userAgent.includes("Electron");
-
-var map = L.map("map", {
+const map = L.map('map', {
     doubleClickZoom: true,
     zoomControl: false, // added manually below
     tapHold: true,
 });
-if (localStorage.getItem("map.lat") === null) {
+if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
     map.setView(
-        [localStorage.getItem("map.lat"), localStorage.getItem("map.lng")],
-        localStorage.getItem("map.zoom")
+        [localStorage.getItem('map.lat'), localStorage.getItem('map.lng')],
+        localStorage.getItem('map.zoom')
     );
 }
-map.attributionControl.setPrefix("");
-L.control.scale({ position: "bottomleft" }).addTo(map);
-L.control.zoom({ position: "topright" }).addTo(map);
+map.attributionControl.setPrefix('');
+L.control.scale({ position: 'bottomleft' }).addTo(map);
+L.control.zoom({ position: 'topright' }).addTo(map);
 
 if (/wv/.test(navigator.userAgent) && /Android/.test(navigator.userAgent)) {
-    document.body.classList.add("android-webview");
+    document.body.classList.add('android-webview');
 }
 
-if (enableMultiMapServices) {
-    var select = document.getElementById("mapTileServiceSelector");
+const select = document.getElementById('mapTileServiceSelector');
 
-    for (var serviceKey in mapServices) {
-        var option = document.createElement("option");
-        option.value = serviceKey;
-        option.textContent = serviceKey;
-        select.appendChild(option);
+for (const serviceKey in mapServices) {
+    const option = document.createElement('option');
+    option.value = serviceKey;
+    option.textContent = serviceKey;
+    select.appendChild(option);
+}
+
+let tileLayer = null;
+let annotationLayer = null;
+
+function addMapService(map, serviceKey) {
+    localStorage.setItem('map.tileService', serviceKey);
+    console.log('Switching tile service to:', serviceKey);
+    const service = mapServices[serviceKey];
+    if (!service) return;
+
+    if (tileLayer && map.hasLayer(tileLayer)) {
+        map.removeLayer(tileLayer);
     }
-
-    var tileLayer = null;
-    var annotationLayer = null;
-
-    function addMapService(map, serviceKey) {
-        localStorage.setItem("map.tileService", serviceKey);
-        console.log("Switching tile service to:", serviceKey);
-        const service = mapServices[serviceKey];
-        if (!service) return;
-
-        if (tileLayer && map.hasLayer(tileLayer)) {
-            map.removeLayer(tileLayer);
-        }
-        if (annotationLayer && map.hasLayer(annotationLayer)) {
-            map.removeLayer(annotationLayer);
-        }
-        const subdomains = service.subdomains || [];
-        // desktop does not allow electron to access internet directly
-        const protocol = navigator.userAgent.includes("Electron")
-            ? "maps:"
-            : "https:";
-        tileLayer = L.tileLayer(service.url.replace("https:", protocol), {
-            maxZoom: service.options.maxZoom,
-            attribution: service.options.attribution,
-            tms: service.options.tms || false,
-            subdomains: subdomains, //service.subdomains.join(',')
-        }).addTo(map);
-
-        if (service.annotationLayer) {
-            const annotationLayersubdomains =
-                service.annotationLayer.subdomains || [];
-            annotationLayer = L.tileLayer(
-                service.annotationLayer.url.replace("https:", protocol),
-                {
-                    maxZoom: service.annotationLayer.options.maxZoom,
-                    tms: service.annotationLayer.options.tms || false,
-                    subdomains: annotationLayersubdomains, //service.subdomains.join(',')
-                }
-            ).addTo(map);
-        }
+    if (annotationLayer && map.hasLayer(annotationLayer)) {
+        map.removeLayer(annotationLayer);
     }
+    const subdomains = service.subdomains || [];
+    // desktop does not allow electron to access internet directly
+    const protocol = navigator.userAgent.includes('Electron')
+        ? 'maps:'
+        : 'https:';
+    tileLayer = L.tileLayer(service.url.replace('https:', protocol), {
+        maxZoom: service.options.maxZoom,
+        attribution: service.options.attribution,
+        tms: service.options.tms || false,
+        subdomains: subdomains, //service.subdomains.join(',')
+    }).addTo(map);
 
-    select.addEventListener("change", function () {
-        const selectedService = this.value;
-        console.log("Selected tile service:", selectedService);
-        addMapService(map, selectedService);
-    });
-
-    let tileServiceKey = defaultServiceKey;
-    if (localStorage.getItem("map.tileService") !== null) {
-        tileServiceKey = localStorage.getItem("map.tileService");
-        console.log("Restoring tile service:", tileServiceKey);
-    } else {
-        console.log("Using default tile service:", defaultServiceKey);
+    if (service.annotationLayer) {
+        const annotationLayersubdomains =
+            service.annotationLayer.subdomains || [];
+        annotationLayer = L.tileLayer(
+            service.annotationLayer.url.replace('https:', protocol),
+            {
+                maxZoom: service.annotationLayer.options.maxZoom,
+                tms: service.annotationLayer.options.tms || false,
+                subdomains: annotationLayersubdomains, //service.subdomains.join(',')
+            }
+        ).addTo(map);
     }
+}
 
-    select.value = tileServiceKey;
-    select.dispatchEvent(new Event("change"));
+select.addEventListener('change', function () {
+    const selectedService = this.value;
+    console.log('Selected tile service:', selectedService);
+    addMapService(map, selectedService);
+});
+
+let tileServiceKey = defaultServiceKey;
+if (localStorage.getItem('map.tileService') !== null) {
+    tileServiceKey = localStorage.getItem('map.tileService');
+    console.log('Restoring tile service:', tileServiceKey);
 } else {
-    document.getElementById("mapTileServiceSelector").parentElement.style.display = "none";
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap',
-            tms: false,
-        }).addTo(map);
+    console.log('Using default tile service:', defaultServiceKey);
 }
+
+select.value = tileServiceKey;
+select.dispatchEvent(new Event('change'));
 
 const pinIcon = L.icon({
-    iconUrl: "images/pin-icon.png",
-    iconRetinaUrl: "images/pin-icon-2x.png",
+    iconUrl: 'images/pin-icon.png',
+    iconRetinaUrl: 'images/pin-icon-2x.png',
     iconSize: [12, 29], // size of the icon
     iconAnchor: [6, 29], // point of the icon which will correspond to marker's location
     popupAnchor: [0, -29], // point from which the popup should open relative to the iconAnchor
@@ -120,19 +106,19 @@ let showContactToggle = false;
 let showPoiToggle = false;
 
 // DOM elements
-const contactOverlay = document.getElementById("contactsOverlay");
-const poiOverlay = document.getElementById("poiOverlay");
-const settingsOverlay = document.getElementById("settingsOverlay");
-const toggleBtn = document.getElementById("toggleOverlay");
-const poiToggleBtn = document.getElementById("togglePoiOverlay");
-const settingsBtn = document.getElementById("settingsButton");
-const showContactToggleCheckbox = document.getElementById("showContactToggle");
-const showPoiToggleCheckbox = document.getElementById("showPoiToggle");
+const contactOverlay = document.getElementById('contactsOverlay');
+const poiOverlay = document.getElementById('poiOverlay');
+const settingsOverlay = document.getElementById('settingsOverlay');
+const toggleBtn = document.getElementById('toggleOverlay');
+const poiToggleBtn = document.getElementById('togglePoiOverlay');
+const settingsBtn = document.getElementById('settingsButton');
+const showContactToggleCheckbox = document.getElementById('showContactToggle');
+const showPoiToggleCheckbox = document.getElementById('showPoiToggle');
 
 // Load settings from localStorage
 function loadSettings() {
-    showContactToggle = localStorage.getItem("showContactToggle") === "true";
-    showPoiToggle = localStorage.getItem("showPoiToggle") === "true";
+    showContactToggle = localStorage.getItem('showContactToggle') === 'true';
+    showPoiToggle = localStorage.getItem('showPoiToggle') === 'true';
 
     showContactToggleCheckbox.checked = showContactToggle;
     showPoiToggleCheckbox.checked = showPoiToggle;
@@ -142,27 +128,27 @@ function loadSettings() {
 
 // Save settings to localStorage
 function saveSettings() {
-    localStorage.setItem("showContactToggle", showContactToggle.toString());
-    localStorage.setItem("showPoiToggle", showPoiToggle.toString());
+    localStorage.setItem('showContactToggle', showContactToggle.toString());
+    localStorage.setItem('showPoiToggle', showPoiToggle.toString());
 }
 
 // Update toggle button visibility based on settings
 function updateToggleVisibility() {
-    toggleBtn.style.display = showContactToggle ? "block" : "none";
-    poiToggleBtn.style.display = showPoiToggle ? "block" : "none";
+    toggleBtn.style.display = showContactToggle ? 'block' : 'none';
+    poiToggleBtn.style.display = showPoiToggle ? 'block' : 'none';
 }
 
 function initOverlay() {
-    contactOverlay.style.display = "none";
-    poiOverlay.style.display = "none";
-    settingsOverlay.style.display = "none";
-    toggleBtn.textContent = "👤";
+    contactOverlay.style.display = 'none';
+    poiOverlay.style.display = 'none';
+    settingsOverlay.style.display = 'none';
+    toggleBtn.textContent = '👤';
 
     // Load settings and update visibility
     loadSettings();
     console.log(tracks);
 
-    toggleBtn.addEventListener("click", function () {
+    toggleBtn.addEventListener('click', function () {
         contactOverlayVisible = !contactOverlayVisible;
         if (contactOverlayVisible) {
             poiOverlayVisible = false;
@@ -171,7 +157,7 @@ function initOverlay() {
         showHideOverlays();
     });
 
-    poiToggleBtn.addEventListener("click", function () {
+    poiToggleBtn.addEventListener('click', function () {
         poiOverlayVisible = !poiOverlayVisible;
         if (poiOverlayVisible) {
             contactOverlayVisible = false;
@@ -180,7 +166,7 @@ function initOverlay() {
         showHideOverlays();
     });
 
-    settingsBtn.addEventListener("click", function () {
+    settingsBtn.addEventListener('click', function () {
         settingsOverlayVisible = !settingsOverlayVisible;
         if (settingsOverlayVisible) {
             contactOverlayVisible = false;
@@ -190,13 +176,13 @@ function initOverlay() {
     });
 
     // Settings checkbox event listeners
-    showContactToggleCheckbox.addEventListener("change", function () {
+    showContactToggleCheckbox.addEventListener('change', function () {
         showContactToggle = this.checked;
         saveSettings();
         updateToggleVisibility();
     });
 
-    showPoiToggleCheckbox.addEventListener("change", function () {
+    showPoiToggleCheckbox.addEventListener('change', function () {
         showPoiToggle = this.checked;
         saveSettings();
         updateToggleVisibility();
@@ -205,33 +191,33 @@ function initOverlay() {
 
 // Global function to show/hide overlays
 function showHideOverlays() {
-    contactOverlay.style.display = contactOverlayVisible ? "block" : "none";
-    poiOverlay.style.display = poiOverlayVisible ? "block" : "none";
-    settingsOverlay.style.display = settingsOverlayVisible ? "block" : "none";
+    contactOverlay.style.display = contactOverlayVisible ? 'block' : 'none';
+    poiOverlay.style.display = poiOverlayVisible ? 'block' : 'none';
+    settingsOverlay.style.display = settingsOverlayVisible ? 'block' : 'none';
 }
 
 // Update the contacts overlay
 function updateContactsOverlay() {
-    const contactsList = document.getElementById("contactsList");
+    const contactsList = document.getElementById('contactsList');
 
     if (contactsData.size === 0) {
         contactsList.innerHTML =
             '<div class="no-items">No contacts shared their location yet</div>';
         // Only hide contact toggle if setting is disabled, otherwise respect the setting
         if (!showContactToggle) {
-            toggleBtn.style.display = "none";
+            toggleBtn.style.display = 'none';
         }
         return;
     }
 
     if (contactsData.size > 1) {
-        toggleBtn.textContent = "👥";
+        toggleBtn.textContent = '👥';
     }
 
     // Show contact toggle button if there are contacts AND setting is enabled
-    toggleBtn.style.display = showContactToggle ? "block" : "none";
+    toggleBtn.style.display = showContactToggle ? 'block' : 'none';
 
-    let html = "";
+    let html = '';
     contactsData.forEach((contact, contactId) => {
         const timeAgo = formatTimeAgo(contact.lastTimestamp);
         html += `
@@ -251,21 +237,21 @@ function updateContactsOverlay() {
 
 // Update the POI overlay
 function updatePoiOverlay() {
-    const poiList = document.getElementById("poiList");
+    const poiList = document.getElementById('poiList');
 
     if (poiData.size === 0) {
         poiList.innerHTML = '<div class="no-contacts">No POIs yet</div>';
         // Only hide POI toggle if setting is disabled, otherwise respect the setting
         if (!showPoiToggle) {
-            poiToggleBtn.style.display = "none";
+            poiToggleBtn.style.display = 'none';
         }
         return;
     }
 
     // Show POI toggle button if there are POIs AND setting is enabled
-    poiToggleBtn.style.display = showPoiToggle ? "block" : "none";
+    poiToggleBtn.style.display = showPoiToggle ? 'block' : 'none';
 
-    let html = "";
+    let html = '';
     poiData.forEach((poi, poiId) => {
         const timeAgo = formatTimeAgo(poi.timestamp);
         html += `
@@ -287,22 +273,22 @@ function updatePoiOverlay() {
 
 // Format timestamp to relative time (e.g., "2h ago", "30m ago", "3d ago")
 function formatTimeAgo(timestamp) {
-    if (!timestamp) return "";
+    if (!timestamp) return '';
 
     const now = Math.floor(Date.now() / 1000);
     const diff = now - timestamp;
 
     if (diff < 60) {
-        return "now";
+        return 'now';
     } else if (diff < 3600) {
         const minutes = Math.floor(diff / 60);
-        return minutes + "m ago";
+        return minutes + 'm ago';
     } else if (diff < 86400) {
         const hours = Math.floor(diff / 3600);
-        return hours + "h ago";
+        return hours + 'h ago';
     } else {
         const days = Math.floor(diff / 86400);
-        return days + "d ago";
+        return days + 'd ago';
     }
 }
 
@@ -312,19 +298,19 @@ function zoomToContact(contactId) {
     if (contact && contact.lastPosition) {
         zoomToPosition(contact.lastPosition);
     } else {
-        console.log("Contact not found or no position");
+        console.log('Contact not found or no position');
     }
 }
 
 // Function to zoom to a specific POI
 function zoomToPoi(poiId) {
-    console.log("poiData contents:", poiData);
+    console.log('poiData contents:', poiData);
     const poi = poiData.get(poiId);
-    console.log("Found poi:", poi);
+    console.log('Found poi:', poi);
     if (poi && poi.position) {
         zoomToPosition(poi.position);
     } else {
-        console.log("POI not found or no position");
+        console.log('POI not found or no position');
     }
 }
 
@@ -333,14 +319,14 @@ function zoomToPosition(position) {
 }
 
 // Initialize overlay when DOM is ready
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
     initOverlay();
     updateContactsOverlay();
     updatePoiOverlay();
 });
 
-var tracks = {};
-var initDone = false;
+const tracks = {};
+let initDone = false;
 
 /**
  * @type {Payload}
@@ -361,13 +347,13 @@ window.webxdc
     .setUpdateListener((update) => {
         const payload = update.payload;
 
-        if (payload.action === "pos") {
+        if (payload.action === 'pos') {
             if (payload.independent) {
                 // Store POI data for overlay
                 const poiId =
-                    "poi_" +
+                    'poi_' +
                     Date.now() +
-                    "_" +
+                    '_' +
                     Math.random().toString(36).substr(2, 9);
                 const poiDataObj = {
                     name: payload.name,
@@ -376,7 +362,7 @@ window.webxdc
                     position: [payload.lat, payload.lng],
                     timestamp: payload.timestamp,
                 };
-                console.log("Adding POI with ID:", poiId, "Data:", poiDataObj);
+                console.log('Adding POI with ID:', poiId, 'Data:', poiDataObj);
                 poiData.set(poiId, poiDataObj);
 
                 // Update POI overlay
@@ -390,13 +376,13 @@ window.webxdc
                         .bindTooltip(shortLabelHtml(payload.label), {
                             permanent: true,
                             interactive: true,
-                            direction: "bottom",
+                            direction: 'bottom',
                             offset: [0, -17],
-                            className: "poi-tooltip",
+                            className: 'poi-tooltip',
                         })
                         .openTooltip();
                 }
-                marker.on("click", function () {
+                marker.on('click', function () {
                     if (!marker.getPopup()) {
                         marker
                             .bindPopup(popupHtml(payload), {
@@ -472,7 +458,7 @@ window.webxdc
 // contact's tracks
 
 function updateTrack(contactId) {
-    var track = tracks[contactId];
+    const track = tracks[contactId];
 
     if (track.polyline) {
         map.removeLayer(track.polyline);
@@ -482,7 +468,7 @@ function updateTrack(contactId) {
         weight: 4,
     }).addTo(map);
 
-    var content =
+    const content =
         '<span class="ppl-name" style="background-color:' +
         track.payload.color +
         ';">' +
@@ -511,17 +497,17 @@ function updateTrack(contactId) {
         icon: pinIcon,
         opacity: 0,
     }).addTo(map);
-    var tooltip = L.tooltip({
+    const tooltip = L.tooltip({
         content: content,
         permanent: true,
         interactive: true,
-        direction: "bottom",
+        direction: 'bottom',
         offset: [0, -28],
-        className: "ppl-tooltip",
+        className: 'ppl-tooltip',
     });
     track.marker.bindTooltip(tooltip).openTooltip();
     track.marker.unbindPopup();
-    track.marker.on("click", function () {
+    track.marker.on('click', function () {
         if (!track.marker.getPopup()) {
             track.marker
                 .bindPopup(popupHtml(track.payload), { closeButton: false })
@@ -542,37 +528,37 @@ setInterval(() => {
 
 // share a dedicated location
 
-var popup;
-var popupLatlng;
+let popup;
+let popupLatlng;
 
 function onSend() {
-    const elem = document.getElementById("textToSend");
+    const elem = document.getElementById('textToSend');
     const value = elem.value.trim();
-    if (value != "") {
+    if (value != '') {
         popup.close();
         webxdc.sendUpdate(
             {
                 payload: {
-                    action: "pos",
+                    action: 'pos',
                     independent: true,
                     timestamp: Math.floor(Date.now() / 1000),
                     lat: popupLatlng.lat,
                     lng: popupLatlng.lng,
                     label: elem.value,
                     name: webxdc.selfName,
-                    color: "#888",
+                    color: '#888',
                 },
             },
-            "POI added to map at " +
+            'POI added to map at ' +
                 popupLatlng.lat.toFixed(4) +
-                "/" +
+                '/' +
                 popupLatlng.lng.toFixed(4) +
-                " with text: " +
+                ' with text: ' +
                 value
         );
     } else {
         elem.placeholder =
-            elem.placeholder == "Label" ? "Enter label" : "Label"; // just some cheap visual feedback
+            elem.placeholder == 'Label' ? 'Enter label' : 'Label'; // just some cheap visual feedback
     }
 }
 
@@ -586,21 +572,21 @@ function onMapLongClick(e) {
         .openOn(map);
 }
 
-map.on("contextmenu", onMapLongClick);
+map.on('contextmenu', onMapLongClick);
 
 // handle position and zoom
 
 function onMapMoveOrZoom(e) {
-    localStorage.setItem("map.lat", map.getCenter().lat);
-    localStorage.setItem("map.lng", map.getCenter().lng);
-    localStorage.setItem("map.zoom", map.getZoom());
+    localStorage.setItem('map.lat', map.getCenter().lat);
+    localStorage.setItem('map.lng', map.getCenter().lng);
+    localStorage.setItem('map.zoom', map.getZoom());
 }
 
-map.on("moveend", onMapMoveOrZoom);
-map.on("zoomend", onMapMoveOrZoom);
+map.on('moveend', onMapMoveOrZoom);
+map.on('zoomend', onMapMoveOrZoom);
 
 // Close overlays when clicking on the map
-map.on("click", function () {
+map.on('click', function () {
     contactOverlayVisible = false;
     poiOverlayVisible = false;
     settingsOverlayVisible = false;
@@ -618,9 +604,9 @@ function htmlentities(rawStr) {
 
 function shortLabelHtml(label) {
     if (label.length > 9) {
-        label = htmlentities(label.substring(0, 8).trim()) + "..";
+        label = htmlentities(label.substring(0, 8).trim()) + '..';
     } else if (label.length <= 4) {
-        const padding = "&nbsp;".repeat((7 - label.length) / 2);
+        const padding = '&nbsp;'.repeat((7 - label.length) / 2);
         label = padding + htmlentities(label) + padding;
     }
     return label;
@@ -632,16 +618,16 @@ function popupHtml(payload) {
         payload.color +
         '">' +
         htmlentities(payload.name) +
-        "</b></small></div>" +
-        "<div>" +
+        '</b></small></div>' +
+        '<div>' +
         htmlentities(payload.label) +
-        "</div>" +
-        "<div><small>" +
+        '</div>' +
+        '<div><small>' +
         payload.lat.toFixed(4) +
-        "°/" +
+        '°/' +
         payload.lng.toFixed(4) +
-        "°<br>" +
+        '°<br>' +
         htmlentities(new Date(payload.timestamp * 1000).toLocaleString()) +
-        "</small></div>"
+        '</small></div>'
     );
 }
