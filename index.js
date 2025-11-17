@@ -17,10 +17,6 @@ L.control.zoom({position: 'topright'}).addTo(map);
 
 let url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-if (navigator.userAgent.includes('Electron')) {
-    url = 'maps://tile.openstreetmap.org/{z}/{x}/{y}.png';
-}
-
 let tileLayer = L.tileLayer(url, {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap"
