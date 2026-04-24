@@ -97,6 +97,7 @@ let poiOverlayVisible = false;
 let settingsOverlayVisible = false;
 const contactsData = new Map(); // Store contact data for the overlay
 const poiData = new Map(); // Store POI data for the overlay
+const deletedPoiIds = new Set(); // Track deleted POI IDs to survive replay
 
 // Settings management
 let showContactToggle = false;
@@ -252,7 +253,7 @@ function updatePoiOverlay() {
     poiData.forEach((poi, poiId) => {
         const timeAgo = formatTimeAgo(poi.timestamp);
         html += `
-            <div class="contact-item poi-item" onclick="zoomToPoi('${poiId}')">
+            <div class="contact-item poi-item" data-poi-id="${poiId}">
                 <div class="contact-color" style="background-color: ${
                     poi.color
                 }"></div>
@@ -260,12 +261,34 @@ function updatePoiOverlay() {
                     poi.label || poi.name
                 )}</div>
                 <div class="contact-time">${timeAgo}</div>
-                <button class="item-button">📍</button>
+                <button class="item-button poi-zoom-button" title="Zoom to POI">📍</button>
+                <button class="item-button delete-button poi-delete-button" title="Delete POI">🗑</button>
             </div>
         `;
     });
 
     poiList.innerHTML = html;
+
+    const poiItems = poiList.querySelectorAll('.poi-item');
+    poiItems.forEach((item) => {
+        item.addEventListener('click', function (event) {
+            const poiId = this.dataset.poiId;
+            if (!poiId) {
+                return;
+            }
+
+            const clickedButton = event.target.closest('button');
+            if (
+                clickedButton &&
+                clickedButton.classList.contains('poi-delete-button')
+            ) {
+                deletePoi(poiId);
+                return;
+            }
+
+            zoomToPoi(poiId);
+        });
+    });
 }
 
 // Format timestamp to relative time (e.g., "2h ago", "30m ago", "3d ago")
@@ -311,6 +334,104 @@ function zoomToPoi(poiId) {
     }
 }
 
+async function deletePoi(poiId) {
+    const poi = poiData.get(poiId);
+    if (!poi) {
+        return;
+    }
+
+    const poiTitle = poi.label || poi.name || 'this POI';
+    const confirmed = await showConfirmDialog(`Delete "${poiTitle}"?`);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        webxdc.sendUpdate(
+            {
+                payload: {
+                    action: 'poi_delete',
+                    poiId: poiId,
+                    timestamp: Math.floor(Date.now() / 1000),
+                },
+            },
+            'POI deleted: ' + poiTitle
+        );
+    } catch (error) {
+        console.error('Failed to send POI delete update:', error);
+    }
+
+    removePoiById(poiId);
+}
+
+function removePoiById(poiId) {
+    const poi = poiData.get(poiId);
+    if (poi && poi.marker && map.hasLayer(poi.marker)) {
+        map.removeLayer(poi.marker);
+    }
+
+    poiData.delete(poiId);
+    updatePoiOverlay();
+}
+
+function showConfirmDialog(message) {
+    const backdrop = document.getElementById('confirmDialogBackdrop');
+    const text = document.getElementById('confirmDialogText');
+    const cancelBtn = document.getElementById('confirmDialogCancel');
+    const deleteBtn = document.getElementById('confirmDialogDelete');
+
+    return new Promise((resolve) => {
+        text.textContent = message;
+        backdrop.classList.add('visible');
+
+        function cleanupAndResolve(value) {
+            backdrop.classList.remove('visible');
+            cancelBtn.removeEventListener('click', onCancel);
+            deleteBtn.removeEventListener('click', onDelete);
+            backdrop.removeEventListener('click', onBackdropClick);
+            document.removeEventListener('keydown', onKeyDown);
+            resolve(value);
+        }
+
+        function onCancel() {
+            cleanupAndResolve(false);
+        }
+
+        function onDelete() {
+            cleanupAndResolve(true);
+        }
+
+        function onBackdropClick(event) {
+            if (event.target === backdrop) {
+                cleanupAndResolve(false);
+            }
+        }
+
+        function onKeyDown(event) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                cleanupAndResolve(false);
+                return;
+            }
+
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                cleanupAndResolve(true);
+            }
+        }
+
+        cancelBtn.addEventListener('click', onCancel);
+        deleteBtn.addEventListener('click', onDelete);
+        backdrop.addEventListener('click', onBackdropClick);
+        document.addEventListener('keydown', onKeyDown);
+        cancelBtn.focus();
+    });
+}
+
+function deletePoiFromPopup(poiId) {
+    deletePoi(poiId);
+}
+
 function zoomToPosition(position) {
     map.setView(position, 15, { animate: true, duration: 1.2 });
 }
@@ -344,6 +465,15 @@ window.webxdc
     .setUpdateListener((update) => {
         const payload = update.payload;
 
+        if (payload.action === 'poi_delete') {
+            if (payload.poiId) {
+                deletedPoiIds.add(payload.poiId);
+                removePoiById(payload.poiId);
+                console.log('Deleted POI with ID:', payload.poiId);
+            }
+            return;
+        }
+
         if (payload.action === 'pos') {
             if (payload.independent) {
                 // Store POI data for overlay
@@ -368,6 +498,7 @@ window.webxdc
                 const marker = L.marker([payload.lat, payload.lng], {
                     icon: pinIcon,
                 }).addTo(map);
+                poiDataObj.marker = marker;
                 if (payload.label) {
                     marker
                         .bindTooltip(shortLabelHtml(payload.label), {
@@ -382,7 +513,7 @@ window.webxdc
                 marker.on('click', function () {
                     if (!marker.getPopup()) {
                         marker
-                            .bindPopup(popupHtml(payload), {
+                            .bindPopup(popupHtml(payload, poiId), {
                                 closeButton: false,
                             })
                             .openPopup();
@@ -465,7 +596,7 @@ function updateTrack(contactId) {
         weight: 4,
     }).addTo(map);
 
-    const content =
+    let content =
         '<span class="ppl-name" style="background-color:' +
         track.payload.color +
         ';">' +
@@ -532,12 +663,18 @@ function onSend() {
     const elem = document.getElementById('textToSend');
     const value = elem.value.trim();
     if (value != '') {
+        const poiId =
+            'poi_' +
+            Date.now() +
+            '_' +
+            Math.random().toString(36).substr(2, 9);
         popup.close();
         webxdc.sendUpdate(
             {
                 payload: {
                     action: 'pos',
                     independent: true,
+                    poiId: poiId,
                     timestamp: Math.floor(Date.now() / 1000),
                     lat: popupLatlng.lat,
                     lng: popupLatlng.lng,
@@ -609,8 +746,8 @@ function shortLabelHtml(label) {
     return label;
 }
 
-function popupHtml(payload) {
-    return (
+function popupHtml(payload, poiId = null) {
+    let html =
         '<div><small><b style="color:' +
         payload.color +
         '">' +
@@ -625,6 +762,16 @@ function popupHtml(payload) {
         payload.lng.toFixed(4) +
         '°<br>' +
         htmlentities(new Date(payload.timestamp * 1000).toLocaleString()) +
-        '</small></div>'
-    );
+        '</small></div>';
+
+    if (poiId) {
+        html +=
+            '<div class="popup-delete-row">' +
+            '<button class="popup-delete-button" onclick="deletePoiFromPopup(\'' +
+            poiId +
+            '\')" title="Delete POI">🗑</button>' +
+            '</div>';
+    }
+
+    return html;
 }
