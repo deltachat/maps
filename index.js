@@ -1,6 +1,6 @@
 const map = new L.Map('map', {
     doubleClickZoom: true,
-    zoomControl: false, // added manually below
+    zoomControl: false, // added manually below 123
     tapHold: true,
 });
 if (localStorage.getItem('map.lat') === null) {
@@ -219,7 +219,7 @@ function updateContactsOverlay() {
     contactsData.forEach((contact, contactId) => {
         const timeAgo = formatTimeAgo(contact.lastTimestamp);
         html += `
-            <div class="contact-item" onclick="zoomToContact(${contactId})">
+            <div class="contact-item" onclick="zoomToContact('${contactId}')">
                 <div class="contact-color" style="background-color: ${
                     contact.color
                 }"></div>
@@ -753,9 +753,7 @@ function popupHtml(payload, poiId = null) {
         '">' +
         htmlentities(payload.name) +
         '</b></small></div>' +
-        '<div>' +
-        htmlentities(payload.label) +
-        '</div>' +
+        (payload.label ? '<div>' + htmlentities(payload.label) + '</div>' : '') +
         '<div><small>' +
         payload.lat.toFixed(4) +
         '°/' +

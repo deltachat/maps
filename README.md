@@ -34,26 +34,69 @@ to create `maps.xdc` file, execute:
 ./create-xdc.sh
 ```
 
-Note, that `maps.xdc` is meant to be used as an integration as described below
-and will work only limited when send to a chat.
+Note, that `maps.xdc` is meant to be used as an integration as described below and will work only limited when send to a chat.
+
+
+## Development Preview with webxdc-dev
+
+Use [webxdc-dev](https://github.com/deltachat/webxdc-dev) to preview the app with multiple simulated instances.
+Run it against the **source directory** (not the `.xdc` file) so that dev-only files are available and with the parameter --no-csp to allow the map tiles to be loaded:
+
+```sh
+webxdc-dev run --no-csp .
+```
+
+
+### GPS Simulation
+
+A GPS sender can be simulated for development purposes.
+`simulate.js` is loaded automatically when running from the directory
+and is excluded from the production `.xdc` build.
+
+1. Open browser DevTools (`F12`)
+2. In the **Console** tab, click the context dropdown (top-left, shows `top`) and select one of the iframe instances (localhost:<port>)
+3. Call `simulateGps()` in the console:
+
+```js
+// Default: "SimUser" near Munich, 30 updates, 1.5s interval
+simulateGps()
+
+// Custom sender
+simulateGps({ name: "Alice", lat: 52.52, lng: 13.405, color: "#e74c3c", steps: 50, intervalMs: 800 })
+
+// Multiple senders at once
+simulateGps({ name: "Bob",   lat: 48.2, lng: 16.37 })
+simulateGps({ name: "Carol", lat: 51.5, lng: -0.12 })
+
+// Stop all running simulations
+stopSimulateGps()
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `name` | `"SimUser"` | Display name shown on the map |
+| `color` | random | Hex color for the track marker |
+| `lat` / `lng` | `48.137` / `11.576` | Starting coordinates |
+| `steps` | `30` | Number of position updates to send |
+| `intervalMs` | `1500` | Milliseconds between updates |
+| `drift` | `0.001` | Max random movement per step (~100 m) |
+
+
 
 
 ## Replace Integrations
 
-Webxdc developers can replace the shipped `maps.xdc` with a tweaked version -
-either use different map sources, different engines
-or add completely new features for tracking, hiking, whatever.
+Webxdc developers can replace the shipped `maps.xdc` with a custom version.
 
 For that purpose:
 
 - In `manifest.toml`, add the entry `request_integration = map`
   (this is already true if you use this repository as a template)
 
-- Attach the `.xdc` to the "Saved Messages" chat of Delta Chat 1.50.0 or newer.
-  If things work out,
-  the summary will read "🌍 Used as map. Delete to use default"
+- Attach the `.xdc` to the "Saved Messages" chat of Delta Chat and forward it again to "Saved messages".
+  If things work out, the summary will read "🌍 Used as map. Delete to use default"
 
-When now tapping the map symbol _inside any chat_,
+When now tapping the generic map symbol _inside any chat_,
 the map replacement is started instead of the shipped one.
 
 Note, that this has to be done locally.
