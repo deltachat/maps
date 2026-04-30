@@ -6,7 +6,10 @@ var map = L.map('map', {
         zoomControl: false, // added manually below
         tapHold: true
     });
-if (localStorage.getItem('map.lat') === null) {
+const [lat, lng] = window.location.hash.substring(1).split(",");
+if (lat != undefined && lng != undefined) {
+  map.setView([lat, lng], localStorage.getItem('map.zoom') || 3);
+} else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
     map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
