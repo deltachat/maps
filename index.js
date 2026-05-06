@@ -1,6 +1,6 @@
-const map = L.map('map', {
+const map = new L.Map('map', {
     doubleClickZoom: true,
-    zoomControl: false, // added manually below
+    zoomControl: false, // added manually below 123
     tapHold: true,
 });
 if (localStorage.getItem('map.lat') === null) {
@@ -12,8 +12,8 @@ if (localStorage.getItem('map.lat') === null) {
     );
 }
 map.attributionControl.setPrefix('');
-L.control.scale({ position: 'bottomleft' }).addTo(map);
-L.control.zoom({ position: 'topright' }).addTo(map);
+new L.Control.Scale({ position: 'bottomleft' }).addTo(map);
+new L.Control.Zoom({ position: 'topright' }).addTo(map);
 
 if (/wv/.test(navigator.userAgent) && /Android/.test(navigator.userAgent)) {
     document.body.classList.add('android-webview');
@@ -45,7 +45,7 @@ function addMapService(map, serviceKey) {
     }
     const subdomains = service.subdomains || [];
     // desktop does not allow electron to access internet directly
-    tileLayer = L.tileLayer(service.url, {
+    tileLayer = new L.TileLayer(service.url, {
         maxZoom: service.options.maxZoom,
         attribution: service.options.attribution,
         tms: service.options.tms || false,
@@ -55,7 +55,7 @@ function addMapService(map, serviceKey) {
     if (service.annotationLayer) {
         const annotationLayersubdomains =
             service.annotationLayer.subdomains || [];
-        annotationLayer = L.tileLayer(
+        annotationLayer = new L.TileLayer(
             service.annotationLayer.url,
             {
                 maxZoom: service.annotationLayer.options.maxZoom,
@@ -83,7 +83,7 @@ if (localStorage.getItem('map.tileService') !== null) {
 select.value = tileServiceKey;
 select.dispatchEvent(new Event('change'));
 
-const pinIcon = L.icon({
+const pinIcon = new L.Icon({
     iconUrl: 'images/pin-icon.png',
     iconRetinaUrl: 'images/pin-icon-2x.png',
     iconSize: [12, 29], // size of the icon
@@ -219,7 +219,7 @@ function updateContactsOverlay() {
     contactsData.forEach((contact, contactId) => {
         const timeAgo = formatTimeAgo(contact.lastTimestamp);
         html += `
-            <div class="contact-item" onclick="zoomToContact(${contactId})">
+            <div class="contact-item" onclick="zoomToContact('${contactId}')">
                 <div class="contact-color" style="background-color: ${
                     contact.color
                 }"></div>
@@ -498,7 +498,7 @@ window.webxdc
                 // Update POI overlay
                 updatePoiOverlay();
 
-                const marker = L.marker([payload.lat, payload.lng], {
+                const marker = new L.Marker([payload.lat, payload.lng], {
                     icon: pinIcon,
                 }).addTo(map);
                 poiDataObj.marker = marker;
@@ -594,7 +594,7 @@ function updateTrack(contactId) {
     if (track.polyline) {
         map.removeLayer(track.polyline);
     }
-    track.polyline = L.polyline(track.lines, {
+    track.polyline = new L.Polyline(track.lines, {
         color: track.payload.color,
         weight: 4,
     }).addTo(map);
@@ -624,11 +624,11 @@ function updateTrack(contactId) {
     if (track.marker) {
         map.removeLayer(track.marker);
     }
-    track.marker = L.marker(lastLatLng, {
+    track.marker = new L.Marker(lastLatLng, {
         icon: pinIcon,
         opacity: 0,
     }).addTo(map);
-    const tooltip = L.tooltip({
+    const tooltip = new L.Tooltip({
         content: content,
         permanent: true,
         interactive: true,
@@ -701,7 +701,7 @@ function onSend() {
 
 function onMapLongClick(e) {
     popupLatlng = e.latlng;
-    popup = L.popup({ closeButton: false, keepInView: true })
+    popup = new L.Popup({ closeButton: false, keepInView: true })
         .setLatLng(popupLatlng)
         .setContent(
             '<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>'
@@ -756,9 +756,7 @@ function popupHtml(payload, poiId = null) {
         '">' +
         htmlentities(payload.name) +
         '</b></small></div>' +
-        '<div>' +
-        htmlentities(payload.label) +
-        '</div>' +
+        (payload.label ? '<div>' + htmlentities(payload.label) + '</div>' : '') +
         '<div><small>' +
         payload.lat.toFixed(4) +
         '°/' +

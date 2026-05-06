@@ -93,6 +93,8 @@ window.alterXdcApp = () => {
             '<a href="javascript:window.addXdcPeer();" style="' + styleMenuLink + '">Add Peer</a>' +
             '<span style="' + styleMenuLink + '"> | </span>' +
             '<a id="webxdc-panel-clear" href="javascript:window.clearXdcStorage();" style="' + styleMenuLink + '">Clear Storage</a>' +
+            '<span style="' + styleMenuLink + '"> | </span>' +
+            '<a href="javascript:window.simulateGps();" style="' + styleMenuLink + '">Simulate GPS</a>' +
             '<div>';
         var controlPanel = div.firstChild;
 
