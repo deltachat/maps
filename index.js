@@ -6,9 +6,11 @@ var map = L.map('map', {
         zoomControl: false, // added manually below
         tapHold: true
     });
-const [lat, lng] = window.location.hash.substring(1).split(",");
-if (lat != undefined && lng != undefined) {
-  map.setView([lat, lng], localStorage.getItem('map.zoom') || 3);
+const hashParts = window.location.hash.substring(1).split(",");
+const hashLat = parseFloat(hashParts[0]);
+const hashLng = parseFloat(hashParts[1]);
+if (!isNaN(hashLat) && !isNaN(hashLng)) {
+  map.setView([hashLat, hashLng], localStorage.getItem('map.zoom') || 3);
 } else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
