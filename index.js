@@ -49,11 +49,8 @@ function addMapService(map, serviceKey) {
         map.removeLayer(annotationLayer);
     }
     const subdomains = service.subdomains || [];
-    // desktop does not allow electron to access internet directly
-    const protocol = navigator.userAgent.includes('Electron')
-        ? 'maps:'
-        : 'https:';
-    tileLayer = L.tileLayer(service.url.replace('https:', protocol), {
+
+    tileLayer = L.tileLayer(service.url, {
         maxZoom: service.options.maxZoom,
         attribution: service.options.attribution,
         tms: service.options.tms || false,
@@ -64,7 +61,7 @@ function addMapService(map, serviceKey) {
         const annotationLayersubdomains =
             service.annotationLayer.subdomains || [];
         annotationLayer = L.tileLayer(
-            service.annotationLayer.url.replace('https:', protocol),
+            service.annotationLayer.url,
             {
                 maxZoom: service.annotationLayer.options.maxZoom,
                 tms: service.annotationLayer.options.tms || false,
@@ -458,7 +455,7 @@ window.webxdc
     .then(() => {
         updateTracks();
         initDone = true;
-        focusOnContact(urlParams.get("contactId"));
+        focusOnContact(urlParams.get('contactId'));
     });
 
 // contact's tracks
