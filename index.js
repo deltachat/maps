@@ -91,6 +91,8 @@ window.webxdc.setUpdateListener((update) => {
 }).then(() => {
     updateTracks();
     initDone = true;
+    const urlParams = new URLSearchParams(window.location.search);
+    focusOnContact(urlParams.get('contactId'));
 });
 
 
@@ -204,7 +206,12 @@ function onMapMoveOrZoom(e) {
 map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
 
-
+function focusOnContact(contactId) {
+    var track = tracks[contactId]
+    if (track.payload.lat !== null) {
+        map.setView([track.payload.lat, track.payload.lng], 18);
+    }
+}
 
 // tools
 
