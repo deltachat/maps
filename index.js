@@ -6,10 +6,11 @@ var map = L.map('map', {
         zoomControl: false, // added manually below
         tapHold: true
     });
+const focusZoomLevel = 18;
 const urlParams = new URLSearchParams(window.location.search);
 const [poiLat, poiLng]  = urlParams.get('poi').split(",").map(parseFloat);
 if (!isNaN(poiLat) && !isNaN(poiLng)) {
-  map.setView([hashLat, hashLng], localStorage.getItem('map.zoom') || 3);
+  map.setView([hashLat, hashLng], focusZoomLevel);
 } else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
@@ -212,7 +213,7 @@ map.on('zoomend', onMapMoveOrZoom);
 function focusOnContact(contactId) {
     const track = tracks[contactId]
     if (track && track.payload.lat !== null) {
-        map.setView([track.payload.lat, track.payload.lng], 18);
+        map.setView([track.payload.lat, track.payload.lng], focusZoomLevel);
     }
 }
 
