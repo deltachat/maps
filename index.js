@@ -6,10 +6,9 @@ var map = L.map('map', {
         zoomControl: false, // added manually below
         tapHold: true
     });
-const hashParts = window.location.hash.substring(1).split(",");
-const hashLat = parseFloat(hashParts[0]);
-const hashLng = parseFloat(hashParts[1]);
-if (!isNaN(hashLat) && !isNaN(hashLng)) {
+const urlParams = new URLSearchParams(window.location.search);
+const [poiLat, poiLng]  = urlParams.get('poi').split(",").map(parseFloat);
+if (!isNaN(poiLat) && !isNaN(poiLng)) {
   map.setView([hashLat, hashLng], localStorage.getItem('map.zoom') || 3);
 } else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
@@ -96,7 +95,6 @@ window.webxdc.setUpdateListener((update) => {
 }).then(() => {
     updateTracks();
     initDone = true;
-    const urlParams = new URLSearchParams(window.location.search);
     focusOnContact(urlParams.get('contactId'));
 });
 
@@ -212,8 +210,8 @@ map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
 
 function focusOnContact(contactId) {
-    var track = tracks[contactId]
-    if (track.payload.lat !== null) {
+    const track = tracks[contactId]
+    if (track && track.payload.lat !== null) {
         map.setView([track.payload.lat, track.payload.lng], 18);
     }
 }
