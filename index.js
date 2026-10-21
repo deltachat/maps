@@ -6,7 +6,12 @@ var map = L.map('map', {
         zoomControl: false, // added manually below
         tapHold: true
     });
-if (localStorage.getItem('map.lat') === null) {
+const focusZoomLevel = 18;
+const urlParams = new URLSearchParams(window.location.search);
+const [poiLat, poiLng]  = urlParams.get('poi').split(",").map(parseFloat);
+if (!isNaN(poiLat) && !isNaN(poiLng)) {
+  map.setView([hashLat, hashLng], focusZoomLevel);
+} else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
     map.setView([localStorage.getItem('map.lat'), localStorage.getItem('map.lng')], localStorage.getItem('map.zoom'));
@@ -91,7 +96,6 @@ window.webxdc.setUpdateListener((update) => {
 }).then(() => {
     updateTracks();
     initDone = true;
-    const urlParams = new URLSearchParams(window.location.search);
     focusOnContact(urlParams.get('contactId'));
 });
 
@@ -207,9 +211,9 @@ map.on('moveend', onMapMoveOrZoom);
 map.on('zoomend', onMapMoveOrZoom);
 
 function focusOnContact(contactId) {
-    var track = tracks[contactId]
-    if (track.payload.lat !== null) {
-        map.setView([track.payload.lat, track.payload.lng], 18);
+    const track = tracks[contactId]
+    if (track && track.payload.lat !== null) {
+        map.setView([track.payload.lat, track.payload.lng], focusZoomLevel);
     }
 }
 
