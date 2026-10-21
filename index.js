@@ -8,9 +8,9 @@ var map = L.map('map', {
     });
 const focusZoomLevel = 18;
 const urlParams = new URLSearchParams(window.location.search);
-const [poiLat, poiLng]  = urlParams.get('poi').split(",").map(parseFloat);
+const [poiLat, poiLng] = (urlParams.get('poi') || '').split(',').map(parseFloat);
 if (!isNaN(poiLat) && !isNaN(poiLng)) {
-  map.setView([hashLat, hashLng], focusZoomLevel);
+    map.setView([poiLat, poiLng], focusZoomLevel);
 } else if (localStorage.getItem('map.lat') === null) {
     map.setView([30, -30], 3);
 } else {
