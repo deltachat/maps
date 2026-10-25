@@ -5,7 +5,9 @@ const map = L.map('map', {
 });
 const focusZoomLevel = 18;
 const urlParams = new URLSearchParams(window.location.search);
-const [poiLat, poiLng] = (urlParams.get('poi') || '').split(',').map(parseFloat);
+const [poiLat, poiLng] = (urlParams.get('poi') || '')
+    .split(',')
+    .map(parseFloat);
 if (!isNaN(poiLat) && !isNaN(poiLng)) {
     map.setView([poiLat, poiLng], focusZoomLevel);
 } else if (localStorage.getItem('map.lat') === null) {
@@ -13,7 +15,7 @@ if (!isNaN(poiLat) && !isNaN(poiLng)) {
 } else {
     map.setView(
         [localStorage.getItem('map.lat'), localStorage.getItem('map.lng')],
-        localStorage.getItem('map.zoom')
+        localStorage.getItem('map.zoom'),
     );
 }
 map.attributionControl.setPrefix('');
@@ -60,14 +62,11 @@ function addMapService(map, serviceKey) {
     if (service.annotationLayer) {
         const annotationLayersubdomains =
             service.annotationLayer.subdomains || [];
-        annotationLayer = L.tileLayer(
-            service.annotationLayer.url,
-            {
-                maxZoom: service.annotationLayer.options.maxZoom,
-                tms: service.annotationLayer.options.tms || false,
-                subdomains: annotationLayersubdomains, //service.subdomains.join(',')
-            }
-        ).addTo(map);
+        annotationLayer = L.tileLayer(service.annotationLayer.url, {
+            maxZoom: service.annotationLayer.options.maxZoom,
+            tms: service.annotationLayer.options.tms || false,
+            subdomains: annotationLayersubdomains, //service.subdomains.join(',')
+        }).addTo(map);
     }
 }
 
@@ -262,7 +261,7 @@ function updatePoiOverlay() {
                     poi.color
                 }"></div>
                 <div class="contact-name">${htmlentities(
-                    poi.label || poi.name
+                    poi.label || poi.name,
                 )}</div>
                 <div class="contact-time">${timeAgo}</div>
                 <button class="item-button">📍</button>
@@ -434,7 +433,7 @@ window.webxdc
                     // larger time difference: start new line and connect with previous point on track
                     if (tracks[payload.contactId].lines[lastLine].length == 1) {
                         tracks[payload.contactId].lines[lastLine].push(
-                            tracks[payload.contactId].lines[lastLine][0]
+                            tracks[payload.contactId].lines[lastLine][0],
                         );
                     }
                     tracks[payload.contactId].lines.push([]);
@@ -476,13 +475,13 @@ function updateTrack(contactId) {
         track.payload.color +
         ';">' +
         shortLabelHtml(track.payload.name) +
-        "</span>";
+        '</span>';
     const age = Math.floor(Date.now() / 1000) - track.payload.timestamp;
     if (age > 60 * 60) {
         content +=
             '<br><span class="ppl-time">' +
             Math.floor(age / 60 / 60) +
-            "h ago</span>";
+            'h ago</span>';
     } else if (age > 30 * 60) {
         content += '<br><span class="ppl-time">½h ago</span>';
     } else if (age > 15 * 60) {
@@ -557,7 +556,7 @@ function onSend() {
                 '/' +
                 popupLatlng.lng.toFixed(4) +
                 ' with text: ' +
-                value
+                value,
         );
     } else {
         elem.placeholder =
@@ -570,7 +569,7 @@ function onMapLongClick(e) {
     popup = L.popup({ closeButton: false, keepInView: true })
         .setLatLng(popupLatlng)
         .setContent(
-            '<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>'
+            '<div class="formx"><img src="images/pin-icon.png"><br><input type=text size=9 id=textToSend placeholder="Label"><br><button onclick="onSend()">Send</button></div>',
         )
         .openOn(map);
 }
@@ -608,7 +607,7 @@ map.on('click', function () {
 function htmlentities(rawStr) {
     return rawStr.replace(
         /[\u00A0-\u9999<>\&]/g,
-        (i) => `&#${i.charCodeAt(0)};`
+        (i) => `&#${i.charCodeAt(0)};`,
     );
 }
 
